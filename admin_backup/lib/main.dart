@@ -1,5 +1,7 @@
 import 'dart:html' as html;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const CommitmentAdminApp());
@@ -18,6 +20,7 @@ class CommitmentAdminApp extends StatelessWidget {
   static const Color border = Color(0xFFE1E8EF);
   static const Color textDark = Color(0xFF18232E);
   static const Color textGrey = Color(0xFF7D8995);
+  static const Color navy = Color(0xFF16222D);
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +35,18 @@ class CommitmentAdminApp extends StatelessWidget {
           seedColor: primary,
           brightness: Brightness.light,
         ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFF8FD0FF),
+            foregroundColor: const Color(0xFF12324A),
+            elevation: 6,
+            shadowColor: const Color(0x808FD0FF),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
         textTheme: const TextTheme(
           bodyMedium: TextStyle(
             color: textDark,
@@ -45,15 +60,15 @@ class CommitmentAdminApp extends StatelessWidget {
             horizontal: 16,
             vertical: 14,
           ),
-          border: OutlineInputBorder(
+          border: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(10)),
             borderSide: BorderSide(color: border),
           ),
-          enabledBorder: OutlineInputBorder(
+          enabledBorder: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(10)),
             borderSide: BorderSide(color: border),
           ),
-          focusedBorder: OutlineInputBorder(
+          focusedBorder: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(10)),
             borderSide: BorderSide(
               color: primary,
@@ -119,12 +134,13 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
+      body: GlassBackground(
+        child: Row(
         children: [
           Expanded(
             flex: 5,
             child: Container(
-              color: const Color(0xFF16222D),
+              color: const Color(0x55FFFFFF),
               padding: const EdgeInsets.all(60),
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -135,7 +151,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   Text(
                     'One clear view of\nevery commitment.',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Color(0xFF18232E),
                       fontSize: 42,
                       height: 1.15,
                       fontWeight: FontWeight.w700,
@@ -145,7 +161,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   Text(
                     'Manage users, commitments, activity,\nsubscriptions and operational health from\none professional workspace.',
                     style: TextStyle(
-                      color: Color(0xFFB9C5CF),
+                      color: Color(0xFF52606D),
                       fontSize: 16,
                       height: 1.6,
                     ),
@@ -209,8 +225,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         obscureText: obscurePassword,
                         decoration: InputDecoration(
                           hintText: 'Enter password',
-                          prefixIcon:
-                              const Icon(Icons.lock_outline),
+                          prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
@@ -232,11 +247,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         child: FilledButton(
                           onPressed: login,
                           style: FilledButton.styleFrom(
-                            backgroundColor:
-                                CommitmentAdminApp.primary,
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           child: const Text(
@@ -265,6 +277,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }
@@ -281,12 +294,12 @@ class _BrandLogo extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: CommitmentAdminApp.primary,
             borderRadius: BorderRadius.circular(13),
           ),
           child: const Icon(
             Icons.check_circle_outline,
-            color: Color(0xFF16222D),
+            color: Colors.white,
             size: 31,
           ),
         ),
@@ -294,7 +307,7 @@ class _BrandLogo extends StatelessWidget {
         const Text(
           'Commitment App',
           style: TextStyle(
-            color: Colors.white,
+            color: Color(0xFF18232E),
             fontSize: 22,
             fontWeight: FontWeight.w700,
           ),
@@ -312,17 +325,27 @@ class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
   @override
-  State<AdminDashboardScreen> createState() =>
-      _AdminDashboardScreenState();
+  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
 }
 
-class _AdminDashboardScreenState
-    extends State<AdminDashboardScreen> {
+class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   String selectedItem = 'Dashboard';
+  final List<String> navigationHistory = [];
 
   void selectItem(String item) {
+    if (item == selectedItem) return;
+
     setState(() {
+      navigationHistory.add(selectedItem);
       selectedItem = item;
+    });
+  }
+
+  void goBack() {
+    if (navigationHistory.isEmpty) return;
+
+    setState(() {
+      selectedItem = navigationHistory.removeLast();
     });
   }
 
@@ -339,7 +362,8 @@ class _AdminDashboardScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
+      body: GlassBackground(
+        child: Row(
         children: [
           AdminSidebar(
             selectedItem: selectedItem,
@@ -350,6 +374,7 @@ class _AdminDashboardScreenState
             child: _buildPage(),
           ),
         ],
+        ),
       ),
     );
   }
@@ -358,26 +383,32 @@ class _AdminDashboardScreenState
     switch (selectedItem) {
       case 'Dashboard':
         return DashboardPage(
-          onCommitmentsPressed: () =>
-              selectItem('Commitments'),
+          onCommitmentsPressed: () => selectItem('Commitments'),
+          onBack: goBack,
+          onLogout: logout,
         );
 
       case 'Users':
-        return const UsersPage();
+        return UsersPage(
+          onBack: goBack,
+        );
 
       case 'Commitments':
-        return const CommitmentsPage();
+        return CommitmentsPage(
+          onBack: goBack,
+        );
 
       default:
         return PlaceholderPage(
           title: selectedItem,
+          onBack: goBack,
         );
     }
   }
 }
 
 // ============================================================
-// SIDEBAR
+// SIDEBAR  (unchanged)
 // ============================================================
 
 class AdminSidebar extends StatelessWidget {
@@ -415,31 +446,31 @@ class AdminSidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 270,
-      decoration: const BoxDecoration(
-        color: Color(0xFFF1F6FA),
-        border: Border(
-          right: BorderSide(
-            color: Color(0xFFE0E7ED),
-          ),
-        ),
-      ),
+      margin: const EdgeInsets.fromLTRB(16, 16, 0, 16),
+      decoration: glassDecoration(radius: 28),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              22,
-              25,
-              18,
-              25,
-            ),
+            padding: const EdgeInsets.fromLTRB(22, 25, 18, 20),
             child: Row(
               children: [
                 Container(
                   width: 45,
                   height: 45,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF17232E),
-                    borderRadius: BorderRadius.circular(12),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF5DB2EC), Color(0xFF2F80B7)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x662F80B7),
+                        blurRadius: 14,
+                        offset: Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: const Icon(
                     Icons.check_circle_outline,
@@ -454,6 +485,7 @@ class AdminSidebar extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.w700,
+                      color: CommitmentAdminApp.textDark,
                     ),
                   ),
                 ),
@@ -462,9 +494,7 @@ class AdminSidebar extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
@@ -473,22 +503,34 @@ class AdminSidebar extends StatelessWidget {
                 final selected = selectedItem == title;
 
                 return Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 4,
-                  ),
+                  padding: const EdgeInsets.only(bottom: 5),
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(9),
+                    borderRadius: BorderRadius.circular(16),
                     onTap: () => onSelected(title),
                     child: Container(
                       height: 47,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
-                        color: selected
-                            ? const Color(0xFFDDEFFF)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(9),
+                        gradient: selected
+                            ? const LinearGradient(
+                                colors: [
+                                  Color(0xFFA8DCFF),
+                                  Color(0xFF7CC4F5),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: selected
+                            ? const [
+                                BoxShadow(
+                                  color: Color(0x668FD0FF),
+                                  blurRadius: 14,
+                                  offset: Offset(0, 6),
+                                ),
+                              ]
+                            : null,
                       ),
                       child: Row(
                         children: [
@@ -496,7 +538,7 @@ class AdminSidebar extends StatelessWidget {
                             icon,
                             size: 21,
                             color: selected
-                                ? CommitmentAdminApp.primary
+                                ? const Color(0xFF12324A)
                                 : const Color(0xFF52606D),
                           ),
                           const SizedBox(width: 15),
@@ -505,7 +547,7 @@ class AdminSidebar extends StatelessWidget {
                               title,
                               style: TextStyle(
                                 color: selected
-                                    ? CommitmentAdminApp.primary
+                                    ? const Color(0xFF12324A)
                                     : const Color(0xFF34404B),
                                 fontWeight: selected
                                     ? FontWeight.w700
@@ -523,10 +565,13 @@ class AdminSidebar extends StatelessWidget {
           ),
           const Divider(
             height: 1,
-            color: Color(0xFFD5DEE6),
+            color: Color(0x332F80B7),
           ),
           InkWell(
             onTap: onLogout,
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(28),
+            ),
             child: const SizedBox(
               height: 68,
               child: Padding(
@@ -535,13 +580,14 @@ class AdminSidebar extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.logout,
-                      color: Color(0xFF53616D),
+                      color: Color(0xFF52606D),
                     ),
                     SizedBox(width: 15),
                     Text(
                       'Logout',
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
+                        color: CommitmentAdminApp.textDark,
                       ),
                     ),
                   ],
@@ -563,12 +609,14 @@ class PageHeader extends StatelessWidget {
   final String title;
   final String subtitle;
   final Widget? action;
+  final VoidCallback? onBack;
 
   const PageHeader({
     super.key,
     required this.title,
     required this.subtitle,
     this.action,
+    this.onBack,
   });
 
   @override
@@ -578,6 +626,15 @@ class PageHeader extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (onBack != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: IconButton(
+                onPressed: onBack,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: 'Back',
+              ),
+            ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,40 +669,47 @@ class SummaryCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
+  final Color color;
 
   const SummaryCard({
     super.key,
     required this.title,
     required this.value,
     required this.icon,
+    this.color = CommitmentAdminApp.primary,
   });
 
   @override
   Widget build(BuildContext context) {
+    return Tilt3D(child: _card());
+  }
+
+  Widget _card() {
     return Container(
       height: 120,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: CommitmentAdminApp.border,
-        ),
-      ),
+      decoration: cardDecoration(),
       child: Row(
         children: [
           Container(
-            width: 50,
-            height: 50,
+            width: 54,
+            height: 54,
             decoration: BoxDecoration(
-              color: CommitmentAdminApp.lightBlue,
-              borderRadius: BorderRadius.circular(12),
+              gradient: LinearGradient(
+                colors: [color, color.withAlpha(170)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withAlpha(110),
+                  blurRadius: 14,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-            child: Icon(
-              icon,
-              color: CommitmentAdminApp.primary,
-              size: 25,
-            ),
+            child: Icon(icon, color: Colors.white, size: 26),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -670,7 +734,7 @@ class SummaryCard extends StatelessWidget {
                     value,
                     style: const TextStyle(
                       fontSize: 27,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -683,26 +747,183 @@ class SummaryCard extends StatelessWidget {
   }
 }
 
-BoxDecoration cardDecoration() {
+BoxDecoration glassDecoration({double radius = 24}) {
+  return BoxDecoration(
+    gradient: const LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [Color(0xEBFFFFFF), Color(0x99F2FAFF)],
+    ),
+    borderRadius: BorderRadius.circular(radius),
+    border: Border.all(color: const Color(0xCCFFFFFF), width: 1.6),
+    boxShadow: const [
+      // soft blue glow below (depth)
+      BoxShadow(
+        color: Color(0x408FC8F0),
+        blurRadius: 32,
+        offset: Offset(0, 16),
+      ),
+      // light highlight on top-left (3D edge)
+      BoxShadow(
+        color: Color(0xCCFFFFFF),
+        blurRadius: 10,
+        offset: Offset(-4, -4),
+      ),
+    ],
+  );
+}
+
+BoxDecoration cardDecoration() => glassDecoration(radius: 24);
+
+/// Flat white card used on the dashboard (clean, light style).
+BoxDecoration dashCardDecoration({double radius = 16}) {
   return BoxDecoration(
     color: Colors.white,
-    borderRadius: BorderRadius.circular(14),
-    border: Border.all(
-      color: CommitmentAdminApp.border,
-    ),
+    borderRadius: BorderRadius.circular(radius),
+    border: Border.all(color: const Color(0xFFE8EEF4)),
+    boxShadow: const [
+      BoxShadow(
+        color: Color(0x0F1E5A8C),
+        blurRadius: 18,
+        offset: Offset(0, 6),
+      ),
+    ],
   );
+}
+
+class GlassBackground extends StatelessWidget {
+  final Widget child;
+
+  const GlassBackground({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        const Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFE4F4FF),
+                  Color(0xFFD3EBFF),
+                  Color(0xFFF2FAFF),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: -140,
+          left: -120,
+          child: Container(
+            width: 420,
+            height: 420,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(0x88B6E2FF),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: -170,
+          right: -120,
+          child: Container(
+            width: 460,
+            height: 460,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(0x77A9DBFF),
+            ),
+          ),
+        ),
+        Positioned.fill(child: child),
+      ],
+    );
+  }
+}
+
+/// Hover 3D effect: card tilts toward the mouse and lifts up.
+class Tilt3D extends StatefulWidget {
+  final Widget child;
+  final double maxTilt;
+
+  const Tilt3D({
+    super.key,
+    required this.child,
+    this.maxTilt = 0.08,
+  });
+
+  @override
+  State<Tilt3D> createState() => _Tilt3DState();
+}
+
+class _Tilt3DState extends State<Tilt3D> {
+  double rx = 0;
+  double ry = 0;
+  bool hover = false;
+
+  void _onHover(PointerHoverEvent event) {
+    final size = context.size;
+    if (size == null || size.width == 0 || size.height == 0) return;
+
+    final dx = (event.localPosition.dx / size.width - 0.5).clamp(-0.5, 0.5);
+    final dy = (event.localPosition.dy / size.height - 0.5).clamp(-0.5, 0.5);
+
+    setState(() {
+      hover = true;
+      ry = dx * widget.maxTilt * 2;
+      rx = -dy * widget.maxTilt * 2;
+    });
+  }
+
+  void _reset() {
+    setState(() {
+      hover = false;
+      rx = 0;
+      ry = 0;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onHover: _onHover,
+      onExit: (_) => _reset(),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOut,
+        transformAlignment: Alignment.center,
+        transform: Matrix4.identity()
+          ..setEntry(3, 2, 0.0012)
+          ..rotateX(rx)
+          ..rotateY(ry)
+          ..translate(0.0, hover ? -6.0 : 0.0, 0.0),
+        child: widget.child,
+      ),
+    );
+  }
 }
 
 // ============================================================
 // DASHBOARD
 // ============================================================
 
+const Color _dashTitle = Color(0xFF0B2A5B);
+const Color _dashBlue = Color(0xFF2A7DE1);
+
 class DashboardPage extends StatefulWidget {
   final VoidCallback onCommitmentsPressed;
+  final VoidCallback onBack;
+  final VoidCallback onLogout;
 
   const DashboardPage({
     super.key,
     required this.onCommitmentsPressed,
+    required this.onBack,
+    required this.onLogout,
   });
 
   @override
@@ -711,20 +932,23 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   String chartMode = 'Monthly';
+  String snapshotMode = 'Month';
+
+  static const double _bottomRowHeight = 230;
 
   final monthlyValues = [
-    42.0,
+    28.0,
+    37.0,
+    35.0,
+    46.0,
+    50.0,
     55.0,
-    49.0,
+    62.0,
+    58.0,
     70.0,
-    64.0,
-    82.0,
-    76.0,
-    91.0,
-    87.0,
-    102.0,
-    112.0,
-    126.0,
+    78.0,
+    84.0,
+    96.0,
   ];
 
   final yearlyValues = [
@@ -761,95 +985,13 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          32,
-          30,
-          32,
-          45,
-        ),
+        padding: const EdgeInsets.fromLTRB(28, 20, 28, 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const PageHeader(
-              title: 'Dashboard',
-              subtitle:
-                  'Overview of your Commitment App',
-            ),
-
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final width = constraints.maxWidth;
-
-                if (width < 1000) {
-                  return const Column(
-                    children: [
-                      SummaryCard(
-                        title: 'Total Users',
-                        value: '1,284',
-                        icon: Icons.people_outline,
-                      ),
-                      SizedBox(height: 12),
-                      SummaryCard(
-                        title: 'Active Users',
-                        value: '927',
-                        icon: Icons.person_outline,
-                      ),
-                      SizedBox(height: 12),
-                      SummaryCard(
-                        title: 'Trial Users',
-                        value: '642',
-                        icon: Icons.schedule_outlined,
-                      ),
-                      SizedBox(height: 12),
-                      SummaryCard(
-                        title: 'Paid Users',
-                        value: '927',
-                        icon: Icons.workspace_premium_outlined,
-                      ),
-                    ],
-                  );
-                }
-
-                return const Row(
-                  children: [
-                    Expanded(
-                      child: SummaryCard(
-                        title: 'Total Users',
-                        value: '1,284',
-                        icon: Icons.people_outline,
-                      ),
-                    ),
-                    SizedBox(width: 14),
-                    Expanded(
-                      child: SummaryCard(
-                        title: 'Active Users',
-                        value: '927',
-                        icon: Icons.person_outline,
-                      ),
-                    ),
-                    SizedBox(width: 14),
-                    Expanded(
-                      child: SummaryCard(
-                        title: 'Trial Users',
-                        value: '642',
-                        icon: Icons.schedule_outlined,
-                      ),
-                    ),
-                    SizedBox(width: 14),
-                    Expanded(
-                      child: SummaryCard(
-                        title: 'Paid Users',
-                        value: '927',
-                        icon: Icons.workspace_premium_outlined,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-
-            const SizedBox(height: 22),
-
+            _buildHeader(),
+            _buildStatRow(),
+            const SizedBox(height: 20),
             LayoutBuilder(
               builder: (context, constraints) {
                 if (constraints.maxWidth < 1050) {
@@ -865,31 +1007,144 @@ class _DashboardPageState extends State<DashboardPage> {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      flex: 3,
-                      child: _buildGrowthCard(),
-                    ),
+                    Expanded(flex: 6, child: _buildGrowthCard()),
                     const SizedBox(width: 18),
-                    Expanded(
-                      child: _buildAlertCard(),
-                    ),
+                    Expanded(flex: 5, child: _buildAlertCard()),
                   ],
                 );
               },
             ),
+            const SizedBox(height: 20),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 1050) {
+                  return Column(
+                    children: [
+                      _buildCommitmentToday(),
+                      const SizedBox(height: 18),
+                      _buildBusinessSnapshot(),
+                    ],
+                  );
+                }
 
-            const SizedBox(height: 22),
-
-            _buildCommitmentToday(),
-
-            const SizedBox(height: 22),
-
-            _buildBusinessSnapshot(),
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 6, child: _buildCommitmentToday()),
+                    const SizedBox(width: 18),
+                    Expanded(flex: 5, child: _buildBusinessSnapshot()),
+                  ],
+                );
+              },
+            ),
           ],
         ),
       ),
     );
   }
+
+  // ---------- Header + profile (top right) ----------
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IconButton(
+            onPressed: widget.onBack,
+            icon: const Icon(Icons.arrow_back),
+            tooltip: 'Back',
+          ),
+          const SizedBox(width: 6),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Dashboard',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: _dashTitle,
+                  ),
+                ),
+                SizedBox(height: 6),
+                Text(
+                  'Overview of your Commitment App',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: CommitmentAdminApp.textGrey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _ProfileMenu(onLogout: widget.onLogout),
+        ],
+      ),
+    );
+  }
+
+  // ---------- Stat cards ----------
+
+  Widget _buildStatRow() {
+    const cards = [
+      _DashStatCard(
+        title: 'Total Users',
+        value: '1,284',
+        trend: '+12%',
+        icon: Icons.people_outline,
+        color: Color(0xFF5AA9F0),
+      ),
+      _DashStatCard(
+        title: 'Active Users',
+        value: '927',
+        trend: '+8%',
+        icon: Icons.person_outline,
+        color: Color(0xFF2EAD54),
+      ),
+      _DashStatCard(
+        title: 'Trial Users',
+        value: '642',
+        trend: '+5%',
+        icon: Icons.schedule_outlined,
+        color: Color(0xFFF5A623),
+      ),
+      _DashStatCard(
+        title: 'Paid Users',
+        value: '927',
+        trend: '+11%',
+        icon: Icons.workspace_premium_outlined,
+        color: Color(0xFF7B61FF),
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 1000) {
+          return Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              for (final c in cards) SizedBox(width: 240, child: c),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            for (int i = 0; i < cards.length; i++) ...[
+              Expanded(child: cards[i]),
+              if (i != cards.length - 1) const SizedBox(width: 14),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  // ---------- User Growth ----------
 
   Widget _buildGrowthCard() {
     final labels = chartMode == 'Monthly'
@@ -907,108 +1162,66 @@ class _DashboardPageState extends State<DashboardPage> {
             'Nov',
             'Dec',
           ]
-        : List.generate(
-            27,
-            (index) => '${2000 + index}',
-          );
+        : List.generate(27, (index) => '${2000 + index}');
 
-    final values =
-        chartMode == 'Monthly' ? monthlyValues : yearlyValues;
+    final values = chartMode == 'Monthly' ? monthlyValues : yearlyValues;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(
-        24,
-        22,
-        24,
-        22,
-      ),
-      decoration: cardDecoration(),
+      height: 300,
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
+      decoration: dashCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
+              const Icon(Icons.bar_chart_rounded, color: _dashBlue, size: 20),
+              const SizedBox(width: 12),
               const Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'User Growth',
-                      style: TextStyle(
-                        fontSize: 21,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      'New registered users',
-                      style: TextStyle(
-                        color: CommitmentAdminApp.textGrey,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'User Growth',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: _dashTitle,
+                  ),
                 ),
               ),
-              Container(
-                width: 125,
-                height: 42,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF7FAFC),
-                  borderRadius: BorderRadius.circular(9),
-                  border: Border.all(
-                    color: CommitmentAdminApp.border,
-                  ),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: chartMode,
-                    isExpanded: true,
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'Monthly',
-                        child: Text('Monthly'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Yearly',
-                        child: Text('Yearly'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          chartMode = value;
-                        });
-                      }
-                    },
-                  ),
-                ),
+              _dashDropdown(
+                value: chartMode,
+                items: const ['Monthly', 'Yearly'],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      chartMode = value;
+                    });
+                  }
+                },
               ),
             ],
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 16),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final chartWidth = chartMode == 'Monthly'
+                    ? constraints.maxWidth
+                    : 1450.0;
 
-          // Horizontal scroll prevents yearly labels from
-          // overflowing.
-          SizedBox(
-            height: 310,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: chartMode == 'Monthly'
-                    ? 760
-                    : 1450,
-                child: CustomPaint(
-                  painter: GrowthChartPainter(
-                    values: values,
-                    labels: labels,
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: chartWidth,
+                    height: constraints.maxHeight,
+                    child: CustomPaint(
+                      painter: GrowthChartPainter(
+                        values: values,
+                        labels: labels,
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],
@@ -1016,28 +1229,80 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  Widget _dashDropdown({
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+    double width = 118,
+  }) {
+    return Container(
+      width: width,
+      height: 38,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: CommitmentAdminApp.border),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isExpanded: true,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: _dashTitle,
+          ),
+          dropdownColor: Colors.white,
+          focusColor: Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          items: items
+              .map(
+                (item) => DropdownMenuItem(
+                  value: item,
+                  child: Text(item),
+                ),
+              )
+              .toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
+  // ---------- Alert Health ----------
+
   Widget _buildAlertCard() {
     return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: cardDecoration(),
+      height: 300,
+      padding: const EdgeInsets.all(20),
+      decoration: dashCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Alert Health',
-            style: TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.w700,
-            ),
+          const Row(
+            children: [
+              Icon(Icons.shield, color: _dashBlue, size: 24),
+              SizedBox(width: 12),
+              Text(
+                'Alert Health',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: _dashTitle,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 25),
+          const Spacer(),
           _healthBar('Popup Delivered', 94),
-          const SizedBox(height: 22),
+          const Spacer(),
           _healthBar('Notification Delivered', 97),
-          const SizedBox(height: 22),
+          const Spacer(),
           _healthBar('Email Delivered', 89),
-          const SizedBox(height: 22),
+          const Spacer(),
           _healthBar('Failed Delivery', 6),
+          const Spacer(),
         ],
       ),
     );
@@ -1053,6 +1318,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 title,
                 style: const TextStyle(
                   fontSize: 14,
+                  color: CommitmentAdminApp.textDark,
                 ),
               ),
             ),
@@ -1060,6 +1326,7 @@ class _DashboardPageState extends State<DashboardPage> {
               '$percentage%',
               style: const TextStyle(
                 fontWeight: FontWeight.w700,
+                fontSize: 13,
               ),
             ),
           ],
@@ -1069,244 +1336,236 @@ class _DashboardPageState extends State<DashboardPage> {
           borderRadius: BorderRadius.circular(20),
           child: LinearProgressIndicator(
             value: percentage / 100,
-            minHeight: 7,
-            backgroundColor: const Color(0xFFDCEBF5),
-            color: CommitmentAdminApp.primary,
+            minHeight: 6,
+            backgroundColor: const Color(0xFFE6EEF5),
+            color: _dashBlue,
           ),
         ),
       ],
     );
   }
 
+  // ---------- Commitment Today ----------
+
   Widget _buildCommitmentToday() {
-    final data = [
-      ['Team Meeting', 'Riya Sharma', 'Created'],
-      ['Complete Assignment', 'Arun Kumar', 'Completed'],
-      ['Client Meeting', 'Meera Patel', 'Late'],
-      ['Doctor Appointment', 'Rahul Kumar', 'Missed'],
-      ['Project Review', 'Ananya Singh', 'Cancelled'],
-    ];
-
     return Container(
-      padding: const EdgeInsets.fromLTRB(
-        24,
-        22,
-        24,
-        18,
-      ),
-      decoration: cardDecoration(),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Commitment Today',
-                  style: TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: widget.onCommitmentsPressed,
-                child: const Text('View All'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Row(
-            mainAxisAlignment:
-                MainAxisAlignment.spaceAround,
-            children: [
-              _TodayNumber(
-                number: '25',
-                label: 'Created',
-              ),
-              _TodayNumber(
-                number: '18',
-                label: 'Completed',
-              ),
-              _TodayNumber(
-                number: '3',
-                label: 'Late',
-              ),
-              _TodayNumber(
-                number: '2',
-                label: 'Missed',
-              ),
-              _TodayNumber(
-                number: '2',
-                label: 'Cancelled',
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          const Divider(),
-          ...data.map(
-            (item) => _todayRow(
-              item[0],
-              item[1],
-              item[2],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _todayRow(
-    String title,
-    String user,
-    String status,
-  ) {
-    Color statusColor = const Color(0xFF8A949E);
-
-    if (status == 'Completed') {
-      statusColor = const Color(0xFF2EAD54);
-    } else if (status == 'Late') {
-      statusColor = const Color(0xFFE99A13);
-    } else if (status == 'Missed') {
-      statusColor = const Color(0xFFE83E3E);
-    }
-
-    return Container(
-      height: 48,
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Color(0xFFE8EDF1),
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              user,
-              style: const TextStyle(
-                color: CommitmentAdminApp.textGrey,
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 100,
-            child: Text(
-              status,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                color: statusColor,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBusinessSnapshot() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: cardDecoration(),
+      height: _bottomRowHeight,
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+      decoration: dashCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Business Snapshot',
-                  style: TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.w700,
+          SizedBox(
+            height: 38,
+            child: Row(
+              children: [
+                const Icon(Icons.calendar_month, color: _dashBlue, size: 20),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Commitment Today',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: _dashTitle,
+                    ),
                   ),
                 ),
-              ),
-              const Text(
-                'Month',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
+                TextButton(
+                  onPressed: widget.onCommitmentsPressed,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: const Size(0, 32),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'View All',
+                        style: TextStyle(
+                          color: _dashBlue,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(Icons.arrow_forward, size: 14, color: _dashBlue),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 5),
-              const Icon(
-                Icons.keyboard_arrow_down,
-                size: 19,
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 20),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              if (constraints.maxWidth < 800) {
-                return const Column(
-                  children: [
-                    _BusinessBox(
-                      label: 'New',
-                      value: '+128',
-                    ),
-                    SizedBox(height: 12),
-                    _BusinessBox(
-                      label: 'Cancel',
-                      value: '-12',
-                    ),
-                    SizedBox(height: 12),
-                    _BusinessBox(
-                      label: 'Revenue',
-                      value: '₹40,500',
-                    ),
-                    SizedBox(height: 12),
-                    _BusinessBox(
-                      label: 'Net Growth',
-                      value: '+18.4%',
-                    ),
-                  ],
-                );
-              }
+          const SizedBox(height: 12),
+          const Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: _TodayTile(
+                    number: '25',
+                    label: 'Created',
+                    icon: Icons.calendar_month_outlined,
+                    color: Color(0xFF2A7DE1),
+                    background: Color(0xFFEAF3FD),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: _TodayTile(
+                    number: '18',
+                    label: 'Completed',
+                    icon: Icons.check_circle,
+                    color: Color(0xFF2EAD54),
+                    background: Color(0xFFE8F6EC),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: _TodayTile(
+                    number: '3',
+                    label: 'Late',
+                    icon: Icons.schedule,
+                    color: Color(0xFFF5A623),
+                    background: Color(0xFFFFF3E0),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: _TodayTile(
+                    number: '2',
+                    label: 'Missed',
+                    icon: Icons.warning_rounded,
+                    color: Color(0xFFE83E3E),
+                    background: Color(0xFFFFE9E9),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: _TodayTile(
+                    number: '2',
+                    label: 'Cancelled',
+                    icon: Icons.cancel,
+                    color: Color(0xFF7B61FF),
+                    background: Color(0xFFEFEBFF),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-              return const Row(
-                children: [
-                  Expanded(
-                    child: _BusinessBox(
-                      label: 'New',
-                      value: '+128',
+  // ---------- Business Snapshot (Month / Year) ----------
+
+  Widget _buildBusinessSnapshot() {
+    final yearly = snapshotMode == 'Year';
+
+    final newBox = _BusinessBox(
+      label: 'New',
+      value: yearly ? '+1,420' : '+128',
+      trend: yearly ? '+15%' : '+12%',
+      trendUp: true,
+      icon: Icons.add,
+      color: const Color(0xFF5AA9F0),
+      background: const Color(0xFFEAF3FD),
+    );
+
+    final cancelBox = _BusinessBox(
+      label: 'Cancel',
+      value: yearly ? '-96' : '-12',
+      trend: yearly ? '-8%' : '-5%',
+      trendUp: false,
+      icon: Icons.remove,
+      color: const Color(0xFFE83E3E),
+      background: const Color(0xFFFFE9E9),
+    );
+
+    final revenueBox = _BusinessBox(
+      label: 'Revenue',
+      value: yearly ? '₹4,86,000' : '₹40,500',
+      trend: yearly ? '+21%' : '+18%',
+      trendUp: true,
+      icon: Icons.currency_rupee,
+      color: const Color(0xFF6DCB8B),
+      background: const Color(0xFFE8F6EC),
+    );
+
+    final growthBox = _BusinessBox(
+      label: 'Net Growth',
+      value: yearly ? '+24.7%' : '+18.4%',
+      trend: yearly ? '+12%' : '+8%',
+      trendUp: true,
+      icon: Icons.trending_up,
+      color: const Color(0xFF9B87F5),
+      background: const Color(0xFFEFEBFF),
+    );
+
+    return Container(
+      height: _bottomRowHeight,
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+      decoration: dashCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 38,
+            child: Row(
+              children: [
+                const Icon(Icons.bar_chart_rounded, color: _dashBlue, size: 22),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Business Snapshot',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: _dashTitle,
                     ),
                   ),
-                  SizedBox(width: 14),
-                  Expanded(
-                    child: _BusinessBox(
-                      label: 'Cancel',
-                      value: '-12',
-                    ),
+                ),
+                _dashDropdown(
+                  value: snapshotMode,
+                  items: const ['Month', 'Year'],
+                  width: 104,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        snapshotMode = value;
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(child: newBox),
+                      const SizedBox(width: 12),
+                      Expanded(child: cancelBox),
+                    ],
                   ),
-                  SizedBox(width: 14),
-                  Expanded(
-                    child: _BusinessBox(
-                      label: 'Revenue',
-                      value: '₹40,500',
-                    ),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(child: revenueBox),
+                      const SizedBox(width: 12),
+                      Expanded(child: growthBox),
+                    ],
                   ),
-                  SizedBox(width: 14),
-                  Expanded(
-                    child: _BusinessBox(
-                      label: 'Net Growth',
-                      value: '+18.4%',
-                    ),
-                  ),
-                ],
-              );
-            },
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1314,34 +1573,256 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
-class _TodayNumber extends StatelessWidget {
-  final String number;
-  final String label;
+// ---------- Profile (top right) ----------
 
-  const _TodayNumber({
-    required this.number,
-    required this.label,
+class _ProfileMenu extends StatelessWidget {
+  final VoidCallback onLogout;
+
+  const _ProfileMenu({required this.onLogout});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            IconButton(
+              onPressed: () {},
+              tooltip: 'Notifications',
+              icon: const Icon(
+                Icons.notifications_none_rounded,
+                color: Color(0xFF52606D),
+                size: 26,
+              ),
+            ),
+            Positioned(
+              top: 10,
+              right: 11,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE83E3E),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(width: 6),
+        PopupMenuButton<String>(
+          tooltip: 'Profile',
+          offset: const Offset(0, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          onSelected: (value) {
+            if (value == 'Logout') onLogout();
+          },
+          itemBuilder: (_) => const [
+            PopupMenuItem(
+              value: 'Profile',
+              child: Row(
+                children: [
+                  Icon(Icons.person_outline, size: 18),
+                  SizedBox(width: 10),
+                  Text('My Profile'),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'Logout',
+              child: Row(
+                children: [
+                  Icon(Icons.logout, size: 18),
+                  SizedBox(width: 10),
+                  Text('Logout'),
+                ],
+              ),
+            ),
+          ],
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(6, 5, 12, 5),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: const Color(0xFFE8EEF4)),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x0F1E5A8C),
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Color(0xFFE3EAF1),
+                  child: Icon(
+                    Icons.person,
+                    color: Color(0xFF9AA8B5),
+                    size: 24,
+                  ),
+                ),
+                SizedBox(width: 10),
+                Text(
+                  'Admin',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: _dashTitle,
+                  ),
+                ),
+                SizedBox(width: 4),
+                Icon(Icons.keyboard_arrow_down, size: 20),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------- Dashboard small widgets ----------
+
+class _DashStatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final String trend;
+  final IconData icon;
+  final Color color;
+
+  const _DashStatCard({
+    required this.title,
+    required this.value,
+    required this.trend,
+    required this.icon,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          number,
-          style: const TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.w700,
+    return Container(
+      height: 88,
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      decoration: dashCardDecoration(),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: Colors.white, size: 22),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            color: CommitmentAdminApp.textGrey,
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textGrey,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: _dashTitle,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.north_east,
+                      size: 12,
+                      color: Color(0xFF2EAD54),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      trend,
+                      style: const TextStyle(
+                        color: Color(0xFF2EAD54),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+}
+
+class _TodayTile extends StatelessWidget {
+  final String number;
+  final String label;
+  final IconData icon;
+  final Color color;
+  final Color background;
+
+  const _TodayTile({
+    required this.number,
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.background,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 6),
+          Text(
+            number,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1349,36 +1830,89 @@ class _TodayNumber extends StatelessWidget {
 class _BusinessBox extends StatelessWidget {
   final String label;
   final String value;
+  final String trend;
+  final bool trendUp;
+  final IconData icon;
+  final Color color;
+  final Color background;
 
   const _BusinessBox({
     required this.label,
     required this.value,
+    required this.trend,
+    required this.trendUp,
+    required this.icon,
+    required this.color,
+    required this.background,
   });
 
   @override
   Widget build(BuildContext context) {
+    final trendColor =
+        trendUp ? const Color(0xFF2EAD54) : const Color(0xFFE83E3E);
+
     return Container(
-      height: 105,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7FAFC),
+        color: background,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: CommitmentAdminApp.textGrey,
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
             ),
+            child: Icon(icon, color: Colors.white, size: 18),
           ),
-          const Spacer(),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 23,
-              fontWeight: FontWeight.w700,
+          const SizedBox(width: 12),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textGrey,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w700,
+                      color: _dashTitle,
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        trendUp ? Icons.north_east : Icons.south_east,
+                        size: 11,
+                        color: trendColor,
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        trend,
+                        style: TextStyle(
+                          color: trendColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -1415,17 +1949,18 @@ class GrowthChartPainter extends CustomPainter {
       ..strokeWidth = 1;
 
     final linePaint = Paint()
-      ..color = CommitmentAdminApp.primary
-      ..strokeWidth = 3
+      ..color = _dashBlue
+      ..strokeWidth = 2.5
+      ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
-    final fillPaint = Paint()
-      ..color = const Color(0xFFDCEFFF)
-      ..style = PaintingStyle.fill;
+    if (values.isEmpty) return;
+
+    final rawMax = values.reduce((a, b) => a > b ? a : b);
+    final axisMax = ((rawMax / 100).ceil() * 100).toDouble().clamp(100.0, 1e9);
 
     for (int i = 0; i <= 4; i++) {
-      final y =
-          top + (chartHeight / 4) * i;
+      final y = top + (chartHeight / 4) * i;
 
       canvas.drawLine(
         Offset(left, y),
@@ -1433,8 +1968,7 @@ class GrowthChartPainter extends CustomPainter {
         gridPaint,
       );
 
-      final value =
-          ((4 - i) * 25).toString();
+      final value = ((4 - i) * axisMax / 4).round().toString();
 
       _drawText(
         canvas,
@@ -1447,57 +1981,42 @@ class GrowthChartPainter extends CustomPainter {
       );
     }
 
-    if (values.isEmpty) return;
-
-    final maxValue =
-        values.reduce((a, b) => a > b ? a : b);
-
-    final step = values.length == 1
-        ? chartWidth
-        : chartWidth / (values.length - 1);
+    final step =
+        values.length == 1 ? chartWidth : chartWidth / (values.length - 1);
 
     final points = <Offset>[];
 
     for (int i = 0; i < values.length; i++) {
       final x = left + step * i;
-      final normalized =
-          values[i] / maxValue;
-
-      final y =
-          top + chartHeight - normalized * chartHeight;
-
+      final normalized = values[i] / axisMax;
+      final y = top + chartHeight - normalized * chartHeight;
       points.add(Offset(x, y));
     }
 
-    final fillPath = Path()
-      ..moveTo(points.first.dx, top + chartHeight);
-
-    for (final point in points) {
-      fillPath.lineTo(point.dx, point.dy);
+    // Smooth curve
+    final linePath = Path()..moveTo(points.first.dx, points.first.dy);
+    for (int i = 1; i < points.length; i++) {
+      final prev = points[i - 1];
+      final cur = points[i];
+      final midX = (prev.dx + cur.dx) / 2;
+      linePath.cubicTo(midX, prev.dy, midX, cur.dy, cur.dx, cur.dy);
     }
 
-    fillPath
-      ..lineTo(
-        points.last.dx,
-        top + chartHeight,
-      )
+    // Gradient fill
+    final baseY = top + chartHeight;
+    final fillPath = Path.from(linePath)
+      ..lineTo(points.last.dx, baseY)
+      ..lineTo(points.first.dx, baseY)
       ..close();
 
+    final fillPaint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0x552A7DE1), Color(0x082A7DE1)],
+      ).createShader(Rect.fromLTWH(0, top, size.width, chartHeight));
+
     canvas.drawPath(fillPath, fillPaint);
-
-    final linePath = Path()
-      ..moveTo(
-        points.first.dx,
-        points.first.dy,
-      );
-
-    for (int i = 1; i < points.length; i++) {
-      linePath.lineTo(
-        points[i].dx,
-        points[i].dy,
-      );
-    }
-
     canvas.drawPath(linePath, linePaint);
 
     for (int i = 0; i < points.length; i++) {
@@ -1505,12 +2024,16 @@ class GrowthChartPainter extends CustomPainter {
 
       canvas.drawCircle(
         point,
-        4,
-        Paint()..color = CommitmentAdminApp.primary,
+        4.5,
+        Paint()..color = Colors.white,
+      );
+      canvas.drawCircle(
+        point,
+        3,
+        Paint()..color = _dashBlue,
       );
 
-      final textWidth =
-          _textWidth(labels[i]);
+      final textWidth = _textWidth(labels[i]);
 
       _drawText(
         canvas,
@@ -1538,10 +2061,7 @@ class GrowthChartPainter extends CustomPainter {
     TextStyle style,
   ) {
     final painter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: style,
-      ),
+      text: TextSpan(text: text, style: style),
       textDirection: TextDirection.ltr,
     );
 
@@ -1550,11 +2070,8 @@ class GrowthChartPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(
-    covariant GrowthChartPainter oldDelegate,
-  ) {
-    return oldDelegate.values != values ||
-        oldDelegate.labels != labels;
+  bool shouldRepaint(covariant GrowthChartPainter oldDelegate) {
+    return oldDelegate.values != values || oldDelegate.labels != labels;
   }
 }
 
@@ -1564,6 +2081,7 @@ class GrowthChartPainter extends CustomPainter {
 
 class UserRecord {
   String name;
+  String username;
   String email;
   String phone;
   String business;
@@ -1577,6 +2095,7 @@ class UserRecord {
 
   UserRecord({
     required this.name,
+    this.username = '—',
     required this.email,
     required this.phone,
     required this.business,
@@ -1590,12 +2109,12 @@ class UserRecord {
   });
 
   String get initials {
-    final parts = name.split(' ');
-    if (parts.length >= 2) {
-      return '${parts[0][0]}${parts[1][0]}'
-          .toUpperCase();
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2 && parts[0].isNotEmpty && parts[1].isNotEmpty) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
-    return name.substring(0, 1).toUpperCase();
+    if (name.trim().isEmpty) return '?';
+    return name.trim().substring(0, 1).toUpperCase();
   }
 }
 
@@ -1604,7 +2123,12 @@ class UserRecord {
 // ============================================================
 
 class UsersPage extends StatefulWidget {
-  const UsersPage({super.key});
+  final VoidCallback onBack;
+
+  const UsersPage({
+    super.key,
+    required this.onBack,
+  });
 
   @override
   State<UsersPage> createState() => _UsersPageState();
@@ -1612,16 +2136,21 @@ class UsersPage extends StatefulWidget {
 
 class _UsersPageState extends State<UsersPage> {
   final searchController = TextEditingController();
+  final tableScroll = ScrollController();
 
   String statusFilter = 'All';
   String planFilter = 'All';
 
-  int currentPage = 1;
-  final int pageSize = 5;
+  // Table box keeps the same height as before (5 rows x 90px = 450px),
+  // but now shows 10 compact rows (45px each) inside it.
+  static const int visibleRows = 10;
+  static const double boxHeight = 450;
+  static const double rowHeight = boxHeight / visibleRows;
 
   final List<UserRecord> users = [
     UserRecord(
       name: 'Riya Sharma',
+      username: 'riya_sharma',
       email: 'riya@gmail.com',
       phone: '+91 XXXXX XXXXX',
       business: 'Tech Solutions',
@@ -1635,6 +2164,7 @@ class _UsersPageState extends State<UsersPage> {
     ),
     UserRecord(
       name: 'Arun Kumar',
+      username: 'arun_kumar',
       email: 'arun@gmail.com',
       phone: '+91 XXXXX XXXXX',
       business: 'ABC Corp',
@@ -1648,6 +2178,7 @@ class _UsersPageState extends State<UsersPage> {
     ),
     UserRecord(
       name: 'Meera Patel',
+      username: 'meera_patel',
       email: 'meera@gmail.com',
       phone: '+91 XXXXX XXXXX',
       business: 'Patel Designs',
@@ -1661,6 +2192,7 @@ class _UsersPageState extends State<UsersPage> {
     ),
     UserRecord(
       name: 'Vinoth Kumar',
+      username: 'vinoth_kumar',
       email: 'vinoth@gmail.com',
       phone: '+91 XXXXX XXXXX',
       business: 'V-Systems',
@@ -1674,6 +2206,7 @@ class _UsersPageState extends State<UsersPage> {
     ),
     UserRecord(
       name: 'Rahul Kumar',
+      username: 'rahul_kumar',
       email: 'rahul@gmail.com',
       phone: '+91 XXXXX XXXXX',
       business: 'Kumar Enterprises',
@@ -1687,6 +2220,7 @@ class _UsersPageState extends State<UsersPage> {
     ),
     UserRecord(
       name: 'Ananya Singh',
+      username: 'ananya_singh',
       email: 'ananya@gmail.com',
       phone: '+91 XXXXX XXXXX',
       business: 'Singh Media',
@@ -1700,6 +2234,7 @@ class _UsersPageState extends State<UsersPage> {
     ),
     UserRecord(
       name: 'Karthik Raj',
+      username: 'karthik_raj',
       email: 'karthik@gmail.com',
       phone: '+91 XXXXX XXXXX',
       business: 'KR Technologies',
@@ -1713,6 +2248,7 @@ class _UsersPageState extends State<UsersPage> {
     ),
     UserRecord(
       name: 'Priya Menon',
+      username: 'priya_menon',
       email: 'priya@gmail.com',
       phone: '+91 XXXXX XXXXX',
       business: 'PM Studios',
@@ -1726,6 +2262,7 @@ class _UsersPageState extends State<UsersPage> {
     ),
     UserRecord(
       name: 'Sanjay Kumar',
+      username: 'sanjay_kumar',
       email: 'sanjay@gmail.com',
       phone: '+91 XXXXX XXXXX',
       business: 'SK Solutions',
@@ -1739,6 +2276,7 @@ class _UsersPageState extends State<UsersPage> {
     ),
     UserRecord(
       name: 'Divya Raj',
+      username: 'divya_raj',
       email: 'divya@gmail.com',
       phone: '+91 XXXXX XXXXX',
       business: 'DR Designs',
@@ -1755,182 +2293,158 @@ class _UsersPageState extends State<UsersPage> {
   @override
   void dispose() {
     searchController.dispose();
+    tableScroll.dispose();
     super.dispose();
   }
 
   List<UserRecord> get filteredUsers {
-    final query =
-        searchController.text.trim().toLowerCase();
+    final query = searchController.text.trim().toLowerCase();
 
     return users.where((user) {
-      final searchMatch =
-          query.isEmpty ||
+      final searchMatch = query.isEmpty ||
           user.name.toLowerCase().contains(query) ||
           user.email.toLowerCase().contains(query) ||
+          user.username.toLowerCase().contains(query) ||
           user.business.toLowerCase().contains(query);
 
-      final statusMatch =
-          statusFilter == 'All' ||
-          user.status == statusFilter;
+      final statusMatch = statusFilter == 'All' || user.status == statusFilter;
 
-      final planMatch =
-          planFilter == 'All' ||
-          user.plan == planFilter;
+      final planMatch = planFilter == 'All' || user.plan == planFilter;
 
       return searchMatch && statusMatch && planMatch;
     }).toList();
-  }
-
-  List<UserRecord> get currentUsers {
-    final list = filteredUsers;
-
-    final start =
-        (currentPage - 1) * pageSize;
-
-    if (start >= list.length) {
-      return [];
-    }
-
-    final end =
-        (start + pageSize).clamp(0, list.length);
-
-    return list.sublist(start, end);
-  }
-
-  int get totalPages {
-    if (filteredUsers.isEmpty) return 1;
-    return (filteredUsers.length / pageSize).ceil();
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          32,
-          30,
-          32,
-          45,
-        ),
+        padding: const EdgeInsets.fromLTRB(32, 30, 32, 45),
         child: Column(
           children: [
             PageHeader(
               title: 'Users',
-              subtitle:
-                  'Manage and monitor application users',
-              action: FilledButton.icon(
-                onPressed: _addUser,
-                icon: const Icon(Icons.add),
-                label: const Text('Add User'),
-                style: FilledButton.styleFrom(
-                  backgroundColor:
-                      CommitmentAdminApp.primary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 14,
-                  ),
-                ),
-              ),
+              subtitle: 'Manage and monitor application users',
+              onBack: widget.onBack,
             ),
             _buildFilters(),
             const SizedBox(height: 18),
             _buildTable(),
             const SizedBox(height: 16),
-            _buildPagination(),
+            _buildCount(),
           ],
         ),
       ),
     );
   }
 
+  // Search | Status | Plan | + Add User | Export CSV
   Widget _buildFilters() {
+    final search = TextField(
+      controller: searchController,
+      onChanged: (_) {
+        setState(() {});
+      },
+      decoration: const InputDecoration(
+        hintText: 'Search users...',
+        prefixIcon: Icon(Icons.search),
+      ),
+    );
+
+    final status = _dropdown(
+      label: 'Status',
+      value: statusFilter,
+      items: const ['All', 'Active', 'Pending', 'Inactive'],
+      onChanged: (value) {
+        setState(() {
+          statusFilter = value!;
+        });
+      },
+    );
+
+    final plan = _dropdown(
+      label: 'Plan',
+      value: planFilter,
+      items: const ['All', 'Trial', 'Premium'],
+      onChanged: (value) {
+        setState(() {
+          planFilter = value!;
+        });
+      },
+    );
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: cardDecoration(),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: searchController,
-              onChanged: (_) {
-                setState(() {
-                  currentPage = 1;
-                });
-              },
-              decoration: const InputDecoration(
-                hintText: 'Search users...',
-                prefixIcon: Icon(Icons.search),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 145,
-            child: _dropdown(
-              value: statusFilter,
-              items: const [
-                'All',
-                'Active',
-                'Pending',
-                'Inactive',
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 900) {
+            return Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                SizedBox(width: constraints.maxWidth, child: search),
+                SizedBox(width: 140, child: status),
+                SizedBox(width: 140, child: plan),
+                _addUserButton(),
+                _exportButton(),
               ],
-              onChanged: (value) {
-                setState(() {
-                  statusFilter = value!;
-                  currentPage = 1;
-                });
-              },
-            ),
-          ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 145,
-            child: _dropdown(
-              value: planFilter,
-              items: const [
-                'All',
-                'Trial',
-                'Premium',
-              ],
-              onChanged: (value) {
-                setState(() {
-                  planFilter = value!;
-                  currentPage = 1;
-                });
-              },
-            ),
-          ),
-        ],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(child: search),
+              const SizedBox(width: 10),
+              SizedBox(width: 140, child: status),
+              const SizedBox(width: 10),
+              SizedBox(width: 140, child: plan),
+              const SizedBox(width: 10),
+              _addUserButton(),
+              const SizedBox(width: 10),
+              _exportButton(),
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _dropdown({
+    required String label,
     required String value,
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
     return Container(
       height: 52,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: CommitmentAdminApp.border,
-        ),
+        border: Border.all(color: CommitmentAdminApp.border),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
+          selectedItemBuilder: (_) => items
+              .map(
+                (item) => Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    item == 'All' ? label : item,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              )
+              .toList(),
           items: items
               .map(
                 (item) => DropdownMenuItem(
                   value: item,
-                  child: Text(item),
+                  child: Text(item == 'All' ? 'All $label' : item),
                 ),
               )
               .toList(),
@@ -1941,85 +2455,78 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Widget _buildTable() {
+    final rows = filteredUsers;
+
+    const headStyle = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w700,
+      color: Color(0xFF34404B),
+    );
+
     return Container(
       decoration: cardDecoration(),
-      child: Column(
-        children: [
-          Container(
-            height: 56,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-            ),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(14),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 44,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              color: const Color(0xFFE3F3FF),
+              child: const Row(
+                children: [
+                  Expanded(flex: 3, child: Text('User', style: headStyle)),
+                  Expanded(
+                    flex: 2,
+                    child: Text('Business', style: headStyle),
+                  ),
+                  Expanded(child: Text('Plan', style: headStyle)),
+                  Expanded(child: Text('Commitments', style: headStyle)),
+                  Expanded(child: Text('Status', style: headStyle)),
+                  Expanded(child: Text('Created Date', style: headStyle)),
+                  SizedBox(width: 40, child: Text('')),
+                ],
               ),
             ),
-            child: const Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Text('User'),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text('Business'),
-                ),
-                Expanded(
-                  child: Text('Plan'),
-                ),
-                Expanded(
-                  child: Text('Commitments'),
-                ),
-                Expanded(
-                  child: Text('Status'),
-                ),
-                Expanded(
-                  child: Text('Created Date'),
-                ),
-                SizedBox(
-                  width: 45,
-                  child: Text(''),
-                ),
-              ],
+            // Same box size as before; 10 compact rows fit inside it.
+            SizedBox(
+              height: boxHeight,
+              child: rows.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No users found',
+                        style: TextStyle(color: CommitmentAdminApp.textGrey),
+                      ),
+                    )
+                  : Scrollbar(
+                      controller: tableScroll,
+                      thumbVisibility: true,
+                      child: ListView.builder(
+                        controller: tableScroll,
+                        itemCount: rows.length,
+                        itemExtent: rowHeight,
+                        itemBuilder: (_, index) => _userRow(rows[index]),
+                      ),
+                    ),
             ),
-          ),
-          if (currentUsers.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(50),
-              child: Text(
-                'No users found',
-                style: TextStyle(
-                  color: CommitmentAdminApp.textGrey,
-                ),
-              ),
-            )
-          else
-            ...currentUsers.map(
-              (user) => _userRow(user),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _userRow(UserRecord user) {
+    const cellStyle = TextStyle(fontSize: 12);
+
     return InkWell(
       onTap: () => _showUserDetails(user),
       child: Container(
-        constraints: const BoxConstraints(
-          minHeight: 72,
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 10,
-        ),
+        height: rowHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: const BoxDecoration(
           border: Border(
-            top: BorderSide(
-              color: CommitmentAdminApp.border,
-            ),
+            top: BorderSide(color: CommitmentAdminApp.border),
           ),
         ),
         child: Row(
@@ -2029,46 +2536,39 @@ class _UsersPageState extends State<UsersPage> {
               child: Row(
                 children: [
                   CircleAvatar(
-                    radius: 21,
-                    backgroundColor:
-                        CommitmentAdminApp.lightBlue,
+                    radius: 14,
+                    backgroundColor: CommitmentAdminApp.lightBlue,
                     child: Text(
                       user.initials,
                       style: const TextStyle(
-                        color:
-                            CommitmentAdminApp.primary,
+                        color: CommitmentAdminApp.primary,
                         fontWeight: FontWeight.w700,
+                        fontSize: 10.5,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
-                      mainAxisAlignment:
-                          MainAxisAlignment.center,
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           user.name,
                           maxLines: 1,
-                          overflow:
-                              TextOverflow.ellipsis,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontWeight:
-                                FontWeight.w700,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
                           ),
                         ),
-                        const SizedBox(height: 3),
                         Text(
                           user.email,
                           maxLines: 1,
-                          overflow:
-                              TextOverflow.ellipsis,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color:
-                                CommitmentAdminApp.textGrey,
-                            fontSize: 12,
+                            color: CommitmentAdminApp.textGrey,
+                            fontSize: 10.5,
                           ),
                         ),
                       ],
@@ -2082,27 +2582,17 @@ class _UsersPageState extends State<UsersPage> {
               child: Text(
                 user.business,
                 overflow: TextOverflow.ellipsis,
+                style: cellStyle,
               ),
             ),
-            Expanded(
-              child: _planChip(user.plan),
-            ),
-            Expanded(
-              child: Text(
-                '${user.commitments}',
-              ),
-            ),
-            Expanded(
-              child: _statusChip(user.status),
-            ),
-            Expanded(
-              child: Text(
-                user.createdDate,
-              ),
-            ),
+            Expanded(child: _planChip(user.plan)),
+            Expanded(child: Text('${user.commitments}', style: cellStyle)),
+            Expanded(child: _statusChip(user.status)),
+            Expanded(child: Text(user.createdDate, style: cellStyle)),
             SizedBox(
-              width: 45,
+              width: 40,
               child: PopupMenuButton<String>(
+                padding: EdgeInsets.zero,
                 onSelected: (value) {
                   if (value == 'View') {
                     _showUserDetails(user);
@@ -2126,10 +2616,7 @@ class _UsersPageState extends State<UsersPage> {
                     child: Text('Disable User'),
                   ),
                 ],
-                icon: const Icon(
-                  Icons.more_vert,
-                  size: 20,
-                ),
+                icon: const Icon(Icons.more_vert, size: 18),
               ),
             ),
           ],
@@ -2142,10 +2629,7 @@ class _UsersPageState extends State<UsersPage> {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 11,
-          vertical: 7,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
         decoration: BoxDecoration(
           color: CommitmentAdminApp.lightBlue,
           borderRadius: BorderRadius.circular(20),
@@ -2153,7 +2637,7 @@ class _UsersPageState extends State<UsersPage> {
         child: Text(
           plan,
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 10.5,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -2179,10 +2663,7 @@ class _UsersPageState extends State<UsersPage> {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 11,
-          vertical: 7,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
         decoration: BoxDecoration(
           color: background,
           borderRadius: BorderRadius.circular(20),
@@ -2191,7 +2672,7 @@ class _UsersPageState extends State<UsersPage> {
           status,
           style: TextStyle(
             color: text,
-            fontSize: 12,
+            fontSize: 10.5,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -2199,86 +2680,49 @@ class _UsersPageState extends State<UsersPage> {
     );
   }
 
-  Widget _buildPagination() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Text(
-          'Showing ${filteredUsers.isEmpty ? 0 : ((currentPage - 1) * pageSize) + 1}'
-          '–${((currentPage - 1) * pageSize + currentUsers.length)}'
-          ' of ${filteredUsers.length}',
-          style: const TextStyle(
-            color: CommitmentAdminApp.textGrey,
-            fontSize: 13,
-          ),
-        ),
-        const SizedBox(width: 18),
-        IconButton(
-          onPressed: currentPage > 1
-              ? () {
-                  setState(() {
-                    currentPage--;
-                  });
-                }
-              : null,
-          icon: const Icon(Icons.chevron_left),
-        ),
-        ...List.generate(
-          totalPages,
-          (index) {
-            final page = index + 1;
-            final selected = page == currentPage;
+  Widget _buildCount() {
+    final total = filteredUsers.length;
 
-            return Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 3),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(7),
-                onTap: () {
-                  setState(() {
-                    currentPage = page;
-                  });
-                },
-                child: Container(
-                  width: 34,
-                  height: 34,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? CommitmentAdminApp.primary
-                        : Colors.white,
-                    borderRadius: BorderRadius.circular(7),
-                    border: Border.all(
-                      color: selected
-                          ? CommitmentAdminApp.primary
-                          : CommitmentAdminApp.border,
-                    ),
-                  ),
-                  child: Text(
-                    '$page',
-                    style: TextStyle(
-                      color: selected
-                          ? Colors.white
-                          : CommitmentAdminApp.textDark,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Text(
+        'Showing $total of $total',
+        style: const TextStyle(
+          color: CommitmentAdminApp.textGrey,
+          fontSize: 13,
         ),
-        IconButton(
-          onPressed: currentPage < totalPages
-              ? () {
-                  setState(() {
-                    currentPage++;
-                  });
-                }
-              : null,
-          icon: const Icon(Icons.chevron_right),
+      ),
+    );
+  }
+
+  // Button only - intentionally does nothing (no download).
+  Widget _exportButton() {
+    return SizedBox(
+      height: 52,
+      child: FilledButton.icon(
+        onPressed: () {},
+        icon: const Icon(Icons.download_outlined, size: 20),
+        label: const Text('Export CSV'),
+        style: FilledButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF12324A),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _addUserButton() {
+    return SizedBox(
+      height: 52,
+      child: FilledButton.icon(
+        onPressed: _addUser,
+        icon: const Icon(Icons.add, size: 20),
+        label: const Text('Add User'),
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+        ),
+      ),
     );
   }
 
@@ -2288,7 +2732,7 @@ class _UsersPageState extends State<UsersPage> {
       builder: (_) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: SizedBox(
             width: 650,
@@ -2301,13 +2745,11 @@ class _UsersPageState extends State<UsersPage> {
                     children: [
                       CircleAvatar(
                         radius: 28,
-                        backgroundColor:
-                            CommitmentAdminApp.lightBlue,
+                        backgroundColor: CommitmentAdminApp.lightBlue,
                         child: Text(
                           user.initials,
                           style: const TextStyle(
-                            color:
-                                CommitmentAdminApp.primary,
+                            color: CommitmentAdminApp.primary,
                             fontWeight: FontWeight.w700,
                             fontSize: 18,
                           ),
@@ -2316,30 +2758,26 @@ class _UsersPageState extends State<UsersPage> {
                       const SizedBox(width: 15),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               user.name,
                               style: const TextStyle(
                                 fontSize: 22,
-                                fontWeight:
-                                    FontWeight.w700,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             Text(
                               user.email,
                               style: const TextStyle(
-                                color:
-                                    CommitmentAdminApp.textGrey,
+                                color: CommitmentAdminApp.textGrey,
                               ),
                             ),
                           ],
                         ),
                       ),
                       IconButton(
-                        onPressed: () =>
-                            Navigator.pop(context),
+                        onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.close),
                       ),
                     ],
@@ -2403,18 +2841,13 @@ class _UsersPageState extends State<UsersPage> {
       childAspectRatio: 4.5,
       physics: const NeverScrollableScrollPhysics(),
       children: [
+        _detailItem('Username', user.username),
         _detailItem('Phone', user.phone),
         _detailItem('Business', user.business),
         _detailItem('Plan', user.plan),
         _detailItem('Status', user.status),
-        _detailItem(
-          'Commitments',
-          '${user.commitments}',
-        ),
-        _detailItem(
-          'Created Date',
-          user.createdDate,
-        ),
+        _detailItem('Commitments', '${user.commitments}'),
+        _detailItem('Created Date', user.createdDate),
       ],
     );
   }
@@ -2426,33 +2859,26 @@ class _UsersPageState extends State<UsersPage> {
           width: 105,
           child: Text(
             label,
-            style: const TextStyle(
-              color: CommitmentAdminApp.textGrey,
-            ),
+            style: const TextStyle(color: CommitmentAdminApp.textGrey),
           ),
         ),
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
       ],
     );
   }
 
-  Widget _performanceBox(
-    String title,
-    int value,
-    Color background,
-  ) {
+  Widget _performanceBox(String title, int value, Color background) {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
@@ -2472,145 +2898,195 @@ class _UsersPageState extends State<UsersPage> {
 
   void _addUser() {
     final name = TextEditingController();
+    final username = TextEditingController();
     final email = TextEditingController();
+    final phone = TextEditingController();
     final business = TextEditingController();
+    String? error;
 
     showDialog(
       context: context,
       builder: (_) {
-        return AlertDialog(
-          title: const Text('Add User'),
-          content: SizedBox(
-            width: 450,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: name,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return AlertDialog(
+              title: const Text('Add User'),
+              content: SizedBox(
+                width: 450,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: name,
+                        decoration: const InputDecoration(
+                          labelText: 'Name',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: username,
+                        decoration: const InputDecoration(
+                          labelText: 'Username',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: email,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: phone,
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                        ],
+                        decoration: const InputDecoration(
+                          labelText: 'Phone Number',
+                          prefixText: '+91 ',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: business,
+                        decoration: const InputDecoration(
+                          labelText: 'Business',
+                        ),
+                      ),
+                      if (error != null) ...[
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            error!,
+                            style: const TextStyle(
+                              color: Color(0xFFE83E3E),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: email,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                  ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel'),
                 ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: business,
-                  decoration: const InputDecoration(
-                    labelText: 'Business',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () =>
-                  Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () {
-                if (name.text.trim().isEmpty ||
-                    email.text.trim().isEmpty) {
-                  return;
-                }
+                FilledButton(
+                  onPressed: () {
+                    if (name.text.trim().isEmpty ||
+                        username.text.trim().isEmpty ||
+                        !email.text.contains('@')) {
+                      setDialogState(() {
+                        error = 'Enter name, username and a valid email';
+                      });
+                      return;
+                    }
 
-                setState(() {
-                  users.insert(
-                    0,
-                    UserRecord(
-                      name: name.text.trim(),
-                      email: email.text.trim(),
-                      phone: '+91 XXXXX XXXXX',
-                      business:
-                          business.text.trim().isEmpty
+                    if (phone.text.length != 10) {
+                      setDialogState(() {
+                        error = 'Phone number must be 10 digits';
+                      });
+                      return;
+                    }
+
+                    setState(() {
+                      users.insert(
+                        0,
+                        UserRecord(
+                          name: name.text.trim(),
+                          username: username.text.trim(),
+                          email: email.text.trim(),
+                          phone: '+91 ${phone.text}',
+                          business: business.text.trim().isEmpty
                               ? '—'
                               : business.text.trim(),
-                      plan: 'Trial',
-                      commitments: 0,
-                      status: 'Active',
-                      createdDate: '25 Sep 2026',
-                      completed: 0,
-                      late: 0,
-                      missed: 0,
-                    ),
-                  );
-                  currentPage = 1;
-                });
+                          plan: 'Trial',
+                          commitments: 0,
+                          status: 'Active',
+                          createdDate: '28 Sep 2026',
+                          completed: 0,
+                          late: 0,
+                          missed: 0,
+                        ),
+                      );
+                    });
 
-                Navigator.pop(context);
-              },
-              child: const Text('Add User'),
-            ),
-          ],
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text('Add User'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
 
   void _editUser(UserRecord user) {
-    final name =
-        TextEditingController(text: user.name);
-    final email =
-        TextEditingController(text: user.email);
-    final business =
-        TextEditingController(text: user.business);
+    final name = TextEditingController(text: user.name);
+    final username = TextEditingController(text: user.username);
+    final email = TextEditingController(text: user.email);
+    final business = TextEditingController(text: user.business);
 
     showDialog(
       context: context,
-      builder: (_) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Edit User'),
           content: SizedBox(
             width: 450,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: name,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: name,
+                    decoration: const InputDecoration(labelText: 'Name'),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: email,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: username,
+                    decoration: const InputDecoration(labelText: 'Username'),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: business,
-                  decoration: const InputDecoration(
-                    labelText: 'Business',
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: email,
+                    decoration: const InputDecoration(labelText: 'Email'),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: business,
+                    decoration: const InputDecoration(labelText: 'Business'),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () =>
-                  Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancel'),
             ),
             FilledButton(
               onPressed: () {
                 setState(() {
                   user.name = name.text.trim();
+                  user.username = username.text.trim();
                   user.email = email.text.trim();
-                  user.business =
-                      business.text.trim();
+                  user.business = business.text.trim();
                 });
 
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
               },
               child: const Text('Save'),
             ),
@@ -2658,24 +3134,30 @@ class CommitmentRecord {
 // ============================================================
 
 class CommitmentsPage extends StatefulWidget {
-  const CommitmentsPage({super.key});
+  final VoidCallback onBack;
+
+  const CommitmentsPage({
+    super.key,
+    required this.onBack,
+  });
 
   @override
-  State<CommitmentsPage> createState() =>
-      _CommitmentsPageState();
+  State<CommitmentsPage> createState() => _CommitmentsPageState();
 }
 
-class _CommitmentsPageState
-    extends State<CommitmentsPage> {
+class _CommitmentsPageState extends State<CommitmentsPage> {
   final searchController = TextEditingController();
+  final tableScroll = ScrollController();
 
   String statusFilter = 'All';
   String typeFilter = 'All';
-  String userFilter = 'All';
   String dateFilter = 'All';
 
-  int currentPage = 1;
-  final int pageSize = 5;
+  // Table box keeps the same height as before (5 rows x 78px = 390px),
+  // but now shows 10 compact rows (39px each) inside it.
+  static const int visibleRows = 10;
+  static const double boxHeight = 390;
+  static const double rowHeight = boxHeight / visibleRows;
 
   final List<CommitmentRecord> commitments = [
     CommitmentRecord(
@@ -2803,133 +3285,60 @@ class _CommitmentsPageState
   @override
   void dispose() {
     searchController.dispose();
+    tableScroll.dispose();
     super.dispose();
   }
 
   List<CommitmentRecord> get filteredCommitments {
-    final query =
-        searchController.text.trim().toLowerCase();
+    final query = searchController.text.trim().toLowerCase();
 
     return commitments.where((item) {
-      final searchMatch =
-          query.isEmpty ||
+      final searchMatch = query.isEmpty ||
           item.title.toLowerCase().contains(query) ||
           item.user.toLowerCase().contains(query);
 
-      final statusMatch =
-          statusFilter == 'All' ||
-          item.status == statusFilter;
+      final statusMatch = statusFilter == 'All' || item.status == statusFilter;
 
-      final typeMatch =
-          typeFilter == 'All' ||
-          item.type == typeFilter;
-
-      final userMatch =
-          userFilter == 'All' ||
-          item.user == userFilter;
+      final typeMatch = typeFilter == 'All' || item.type == typeFilter;
 
       final dateMatch =
-          dateFilter == 'All' ||
-          item.dateTime.contains(dateFilter);
+          dateFilter == 'All' || item.dateTime.contains(dateFilter);
 
-      return searchMatch &&
-          statusMatch &&
-          typeMatch &&
-          userMatch &&
-          dateMatch;
+      return searchMatch && statusMatch && typeMatch && dateMatch;
     }).toList();
   }
 
-  List<CommitmentRecord> get currentCommitments {
-    final list = filteredCommitments;
-    final start =
-        (currentPage - 1) * pageSize;
-
-    if (start >= list.length) {
-      return [];
-    }
-
-    final end =
-        (start + pageSize).clamp(0, list.length);
-
-    return list.sublist(start, end);
-  }
-
-  int get totalPages {
-    if (filteredCommitments.isEmpty) return 1;
-    return (filteredCommitments.length / pageSize)
-        .ceil();
-  }
-
-  int get total =>
-      commitments.length;
+  int get total => commitments.length;
 
   int get dueToday =>
-      commitments.where(
-        (e) => e.dateTime.contains('25 Sep 2026'),
-      ).length;
+      commitments.where((e) => e.dateTime.contains('25 Sep 2026')).length;
 
   int get completed =>
-      commitments.where(
-        (e) => e.status == 'Completed',
-      ).length;
+      commitments.where((e) => e.status == 'Completed').length;
 
-  int get late =>
-      commitments.where(
-        (e) => e.status == 'Late',
-      ).length;
+  int get late => commitments.where((e) => e.status == 'Late').length;
 
-  int get missed =>
-      commitments.where(
-        (e) => e.status == 'Missed',
-      ).length;
+  int get missed => commitments.where((e) => e.status == 'Missed').length;
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          32,
-          30,
-          32,
-          45,
-        ),
+        padding: const EdgeInsets.fromLTRB(32, 30, 32, 45),
         child: Column(
           children: [
             PageHeader(
               title: 'Commitments',
-              subtitle:
-                  'Manage and monitor all user commitments',
-              action: FilledButton.icon(
-                onPressed: _exportCsv,
-                icon: const Icon(
-                  Icons.download_outlined,
-                ),
-                label: const Text('Export CSV'),
-                style: FilledButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xFF17232E),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 14,
-                  ),
-                ),
-              ),
+              subtitle: 'Manage and monitor all user commitments',
+              onBack: widget.onBack,
             ),
-
             _buildSummaryCards(),
-
             const SizedBox(height: 22),
-
             _buildFilters(),
-
             const SizedBox(height: 18),
-
             _buildTable(),
-
             const SizedBox(height: 16),
-
-            _buildPagination(),
+            _buildCount(),
           ],
         ),
       ),
@@ -2939,31 +3348,36 @@ class _CommitmentsPageState
   Widget _buildSummaryCards() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final cards = [
+        final cards = <Widget>[
           SummaryCard(
             title: 'Total',
             value: '$total',
             icon: Icons.calendar_month_outlined,
+            color: const Color(0xFF2F80B7),
           ),
           SummaryCard(
             title: 'Due Today',
             value: '$dueToday',
             icon: Icons.today_outlined,
+            color: const Color(0xFF7B61FF),
           ),
           SummaryCard(
             title: 'Completed',
             value: '$completed',
             icon: Icons.check_circle_outline,
+            color: const Color(0xFF2EAD54),
           ),
           SummaryCard(
             title: 'Late',
             value: '$late',
             icon: Icons.schedule_outlined,
+            color: const Color(0xFFE99A13),
           ),
           SummaryCard(
             title: 'Missed',
             value: '$missed',
             icon: Icons.cancel_outlined,
+            color: const Color(0xFFE83E3E),
           ),
         ];
 
@@ -2986,8 +3400,7 @@ class _CommitmentsPageState
           children: [
             for (int i = 0; i < cards.length; i++) ...[
               Expanded(child: cards[i]),
-              if (i != cards.length - 1)
-                const SizedBox(width: 12),
+              if (i != cards.length - 1) const SizedBox(width: 12),
             ],
           ],
         );
@@ -2995,201 +3408,106 @@ class _CommitmentsPageState
     );
   }
 
+  // Search | Status | Type | Date | Export CSV
   Widget _buildFilters() {
-    final users = [
+    const statusItems = [
       'All',
-      ...{
-        ...commitments.map((e) => e.user),
-      },
+      'Created',
+      'Completed',
+      'Late',
+      'Missed',
+      'Cancelled',
+    ];
+    const typeItems = ['All', 'Task', 'Online', 'In-person'];
+    const dateItems = [
+      'All',
+      '25 Sep 2026',
+      '26 Sep 2026',
+      '27 Sep 2026',
+      '28 Sep 2026',
+      '29 Sep 2026',
+      '30 Sep 2026',
     ];
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: cardDecoration(),
-      child: Column(
-        children: [
-          TextField(
-            controller: searchController,
-            onChanged: (_) {
-              setState(() {
-                currentPage = 1;
-              });
-            },
-            decoration: const InputDecoration(
-              hintText:
-                  'Search commitment / user',
-              prefixIcon: Icon(Icons.search),
-            ),
-          ),
-          const SizedBox(height: 14),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              if (constraints.maxWidth < 850) {
-                return Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _filterBox(
-                      'Status',
-                      statusFilter,
-                      const [
-                        'All',
-                        'Created',
-                        'Completed',
-                        'Late',
-                        'Missed',
-                        'Cancelled',
-                      ],
-                      (value) {
-                        setState(() {
-                          statusFilter = value!;
-                          currentPage = 1;
-                        });
-                      },
-                    ),
-                    _filterBox(
-                      'Type',
-                      typeFilter,
-                      const [
-                        'All',
-                        'Task',
-                        'Online',
-                        'In-person',
-                      ],
-                      (value) {
-                        setState(() {
-                          typeFilter = value!;
-                          currentPage = 1;
-                        });
-                      },
-                    ),
-                    _filterBox(
-                      'User',
-                      userFilter,
-                      users,
-                      (value) {
-                        setState(() {
-                          userFilter = value!;
-                          currentPage = 1;
-                        });
-                      },
-                    ),
-                    _filterBox(
-                      'Date',
-                      dateFilter,
-                      const [
-                        'All',
-                        '25 Sep 2026',
-                        '26 Sep 2026',
-                        '27 Sep 2026',
-                        '28 Sep 2026',
-                        '29 Sep 2026',
-                        '30 Sep 2026',
-                      ],
-                      (value) {
-                        setState(() {
-                          dateFilter = value!;
-                          currentPage = 1;
-                        });
-                      },
-                    ),
-                    OutlinedButton(
-                      onPressed: _clearFilters,
-                      child:
-                          const Text('Clear Filters'),
-                    ),
-                  ],
-                );
-              }
+    final search = TextField(
+      controller: searchController,
+      onChanged: (_) {
+        setState(() {});
+      },
+      decoration: const InputDecoration(
+        hintText: 'Search commitments...',
+        prefixIcon: Icon(Icons.search),
+      ),
+    );
 
-              return Row(
-                children: [
-                  Expanded(
-                    child: _filterBox(
-                      'Status',
-                      statusFilter,
-                      const [
-                        'All',
-                        'Created',
-                        'Completed',
-                        'Late',
-                        'Missed',
-                        'Cancelled',
-                      ],
-                      (value) {
-                        setState(() {
-                          statusFilter = value!;
-                          currentPage = 1;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _filterBox(
-                      'Type',
-                      typeFilter,
-                      const [
-                        'All',
-                        'Task',
-                        'Online',
-                        'In-person',
-                      ],
-                      (value) {
-                        setState(() {
-                          typeFilter = value!;
-                          currentPage = 1;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _filterBox(
-                      'User',
-                      userFilter,
-                      users,
-                      (value) {
-                        setState(() {
-                          userFilter = value!;
-                          currentPage = 1;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _filterBox(
-                      'Date',
-                      dateFilter,
-                      const [
-                        'All',
-                        '25 Sep 2026',
-                        '26 Sep 2026',
-                        '27 Sep 2026',
-                        '28 Sep 2026',
-                        '29 Sep 2026',
-                        '30 Sep 2026',
-                      ],
-                      (value) {
-                        setState(() {
-                          dateFilter = value!;
-                          currentPage = 1;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  OutlinedButton(
-                    onPressed: _clearFilters,
-                    child:
-                        const Text('Clear Filters'),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+    final statusBox = _filterBox('Status', statusFilter, statusItems, (value) {
+      setState(() {
+        statusFilter = value!;
+      });
+    });
+
+    final typeBox = _filterBox('Type', typeFilter, typeItems, (value) {
+      setState(() {
+        typeFilter = value!;
+      });
+    });
+
+    final dateBox = _filterBox('Date', dateFilter, dateItems, (value) {
+      setState(() {
+        dateFilter = value!;
+      });
+    });
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: cardDecoration(),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 900) {
+            return Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                SizedBox(width: constraints.maxWidth, child: search),
+                SizedBox(width: 150, child: statusBox),
+                SizedBox(width: 150, child: typeBox),
+                SizedBox(width: 170, child: dateBox),
+                _exportButton(),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(child: search),
+              const SizedBox(width: 10),
+              SizedBox(width: 140, child: statusBox),
+              const SizedBox(width: 10),
+              SizedBox(width: 140, child: typeBox),
+              const SizedBox(width: 10),
+              SizedBox(width: 160, child: dateBox),
+              const SizedBox(width: 10),
+              _exportButton(),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _exportButton() {
+    return SizedBox(
+      height: 52,
+      child: FilledButton.icon(
+        onPressed: _exportCsv,
+        icon: const Icon(Icons.download_outlined, size: 20),
+        label: const Text('Export CSV'),
+        style: FilledButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF12324A),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+        ),
       ),
     );
   }
@@ -3201,30 +3519,36 @@ class _CommitmentsPageState
     ValueChanged<String?> onChanged,
   ) {
     return Container(
-      height: 54,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-      ),
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: CommitmentAdminApp.border,
-        ),
+        border: Border.all(color: CommitmentAdminApp.border),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
           hint: Text(label),
+          selectedItemBuilder: (_) => items
+              .map(
+                (item) => Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    item == 'All' ? label : item,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              )
+              .toList(),
           items: items
               .map(
                 (item) => DropdownMenuItem(
                   value: item,
                   child: Text(
-                    item,
-                    overflow:
-                        TextOverflow.ellipsis,
+                    item == 'All' ? 'All $label' : item,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               )
@@ -3236,129 +3560,143 @@ class _CommitmentsPageState
   }
 
   Widget _buildTable() {
+    final rows = filteredCommitments;
+
+    const headStyle = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w700,
+      color: Color(0xFF34404B),
+    );
+
     return Container(
       decoration: cardDecoration(),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: 1100,
-          child: Column(
-            children: [
-              Container(
-                height: 56,
-                padding:
-                    const EdgeInsets.symmetric(
-                  horizontal: 20,
-                ),
-                color: const Color(0xFFF8FAFC),
-                child: const Row(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final width =
+                constraints.maxWidth < 1100 ? 1100.0 : constraints.maxWidth;
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: width,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
-                      width: 220,
-                      child: Text('Commitment'),
+                    Container(
+                      height: 44,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      color: const Color(0xFFE3F3FF),
+                      child: const Row(
+                        children: [
+                          Expanded(
+                            child: Text('Commitment', style: headStyle),
+                          ),
+                          SizedBox(
+                            width: 150,
+                            child: Text('User', style: headStyle),
+                          ),
+                          SizedBox(
+                            width: 115,
+                            child: Text('Type', style: headStyle),
+                          ),
+                          SizedBox(
+                            width: 190,
+                            child: Text('Date / Time', style: headStyle),
+                          ),
+                          SizedBox(
+                            width: 110,
+                            child: Text('Reminder', style: headStyle),
+                          ),
+                          SizedBox(
+                            width: 130,
+                            child: Text('Status', style: headStyle),
+                          ),
+                          SizedBox(
+                            width: 60,
+                            child: Text('Actions', style: headStyle),
+                          ),
+                        ],
+                      ),
                     ),
+                    // Same box size as before; 10 compact rows fit inside it.
                     SizedBox(
-                      width: 150,
-                      child: Text('User'),
-                    ),
-                    SizedBox(
-                      width: 115,
-                      child: Text('Type'),
-                    ),
-                    SizedBox(
-                      width: 190,
-                      child: Text('Date / Time'),
-                    ),
-                    SizedBox(
-                      width: 110,
-                      child: Text('Reminder'),
-                    ),
-                    SizedBox(
-                      width: 130,
-                      child: Text('Status'),
-                    ),
-                    SizedBox(
-                      width: 60,
-                      child: Text('Actions'),
+                      height: boxHeight,
+                      child: rows.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'No commitments found',
+                                style: TextStyle(
+                                  color: CommitmentAdminApp.textGrey,
+                                ),
+                              ),
+                            )
+                          : Scrollbar(
+                              controller: tableScroll,
+                              thumbVisibility: true,
+                              child: ListView.builder(
+                                controller: tableScroll,
+                                itemCount: rows.length,
+                                itemExtent: rowHeight,
+                                itemBuilder: (_, index) =>
+                                    _commitmentRow(rows[index]),
+                              ),
+                            ),
                     ),
                   ],
                 ),
               ),
-              if (currentCommitments.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(50),
-                  child: Text(
-                    'No commitments found',
-                    style: TextStyle(
-                      color:
-                          CommitmentAdminApp.textGrey,
-                    ),
-                  ),
-                )
-              else
-                ...currentCommitments.map(
-                  _commitmentRow,
-                ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _commitmentRow(
-    CommitmentRecord item,
-  ) {
+  Widget _commitmentRow(CommitmentRecord item) {
+    const cellStyle = TextStyle(fontSize: 12);
+
     return InkWell(
       onTap: () => _showDetails(item),
       child: Container(
-        height: 78,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-        ),
+        height: rowHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: const BoxDecoration(
           border: Border(
-            top: BorderSide(
-              color: CommitmentAdminApp.border,
-            ),
+            top: BorderSide(color: CommitmentAdminApp.border),
           ),
         ),
         child: Row(
           children: [
-            SizedBox(
-              width: 220,
+            Expanded(
               child: Text(
                 item.title,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
+                  fontSize: 12,
                 ),
               ),
             ),
             SizedBox(
               width: 150,
-              child: Text(item.user),
+              child: Text(item.user, style: cellStyle),
             ),
-            SizedBox(
-              width: 115,
-              child: _typeChip(item.type),
-            ),
+            SizedBox(width: 115, child: _typeChip(item.type)),
             SizedBox(
               width: 190,
-              child: Text(item.dateTime),
+              child: Text(item.dateTime, style: cellStyle),
             ),
             SizedBox(
               width: 110,
-              child: Text(item.reminder),
+              child: Text(item.reminder, style: cellStyle),
             ),
-            SizedBox(
-              width: 130,
-              child: _commitmentStatus(
-                item.status,
-              ),
-            ),
+            SizedBox(width: 130, child: _commitmentStatus(item.status)),
             SizedBox(
               width: 60,
               child: PopupMenuButton<String>(
+                padding: EdgeInsets.zero,
                 onSelected: (value) {
                   if (value == 'View') {
                     _showDetails(item);
@@ -3382,10 +3720,7 @@ class _CommitmentsPageState
                     child: Text('Delete'),
                   ),
                 ],
-                icon: const Icon(
-                  Icons.more_vert,
-                  size: 20,
-                ),
+                icon: const Icon(Icons.more_vert, size: 18),
               ),
             ),
           ],
@@ -3398,10 +3733,7 @@ class _CommitmentsPageState
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 11,
-          vertical: 7,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
         decoration: BoxDecoration(
           color: const Color(0xFFF0F5F9),
           borderRadius: BorderRadius.circular(20),
@@ -3409,7 +3741,7 @@ class _CommitmentsPageState
         child: Text(
           type,
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 10.5,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -3438,10 +3770,7 @@ class _CommitmentsPageState
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 11,
-          vertical: 7,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(20),
@@ -3450,7 +3779,7 @@ class _CommitmentsPageState
           status,
           style: TextStyle(
             color: fg,
-            fontSize: 12,
+            fontSize: 10.5,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -3458,116 +3787,25 @@ class _CommitmentsPageState
     );
   }
 
-  Widget _buildPagination() {
-    final totalItems = filteredCommitments.length;
-    final start = totalItems == 0
-        ? 0
-        : ((currentPage - 1) * pageSize) + 1;
-    final end =
-        ((currentPage - 1) * pageSize +
-                currentCommitments.length);
+  Widget _buildCount() {
+    final total = filteredCommitments.length;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Text(
-          'Showing $start–$end of $totalItems',
-          style: const TextStyle(
-            color: CommitmentAdminApp.textGrey,
-            fontSize: 13,
-          ),
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Text(
+        'Showing $total of $total',
+        style: const TextStyle(
+          color: CommitmentAdminApp.textGrey,
+          fontSize: 13,
         ),
-        const SizedBox(width: 18),
-        IconButton(
-          onPressed: currentPage > 1
-              ? () {
-                  setState(() {
-                    currentPage--;
-                  });
-                }
-              : null,
-          icon: const Icon(Icons.chevron_left),
-        ),
-        ...List.generate(
-          totalPages,
-          (index) {
-            final page = index + 1;
-            final selected =
-                page == currentPage;
-
-            return Padding(
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 3,
-              ),
-              child: InkWell(
-                borderRadius:
-                    BorderRadius.circular(7),
-                onTap: () {
-                  setState(() {
-                    currentPage = page;
-                  });
-                },
-                child: Container(
-                  width: 34,
-                  height: 34,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? CommitmentAdminApp.primary
-                        : Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(7),
-                    border: Border.all(
-                      color: selected
-                          ? CommitmentAdminApp.primary
-                          : CommitmentAdminApp.border,
-                    ),
-                  ),
-                  child: Text(
-                    '$page',
-                    style: TextStyle(
-                      color: selected
-                          ? Colors.white
-                          : CommitmentAdminApp.textDark,
-                      fontWeight:
-                          FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-        IconButton(
-          onPressed: currentPage < totalPages
-              ? () {
-                  setState(() {
-                    currentPage++;
-                  });
-                }
-              : null,
-          icon: const Icon(Icons.chevron_right),
-        ),
-      ],
+      ),
     );
-  }
-
-  void _clearFilters() {
-    setState(() {
-      searchController.clear();
-      statusFilter = 'All';
-      typeFilter = 'All';
-      userFilter = 'All';
-      dateFilter = 'All';
-      currentPage = 1;
-    });
   }
 
   void _showDetails(CommitmentRecord item) {
     showDialog(
       context: context,
-      builder: (_) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: Text(item.title),
           content: SizedBox(
@@ -3575,30 +3813,12 @@ class _CommitmentsPageState
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _commitmentDetail(
-                  'User',
-                  item.user,
-                ),
-                _commitmentDetail(
-                  'Type',
-                  item.type,
-                ),
-                _commitmentDetail(
-                  'Date / Time',
-                  item.dateTime,
-                ),
-                _commitmentDetail(
-                  'Reminder',
-                  item.reminder,
-                ),
-                _commitmentDetail(
-                  'Status',
-                  item.status,
-                ),
-                _commitmentDetail(
-                  'Description',
-                  item.description,
-                ),
+                _commitmentDetail('User', item.user),
+                _commitmentDetail('Type', item.type),
+                _commitmentDetail('Date / Time', item.dateTime),
+                _commitmentDetail('Reminder', item.reminder),
+                _commitmentDetail('Status', item.status),
+                _commitmentDetail('Description', item.description),
                 _commitmentDetail(
                   item.type == 'Online'
                       ? 'Meeting Link'
@@ -3612,8 +3832,7 @@ class _CommitmentsPageState
           ),
           actions: [
             TextButton(
-              onPressed: () =>
-                  Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Close'),
             ),
           ],
@@ -3622,41 +3841,28 @@ class _CommitmentsPageState
     );
   }
 
-  Widget _commitmentDetail(
-    String label,
-    String value,
-  ) {
+  Widget _commitmentDetail(String label, String value) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        vertical: 10,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: const BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            color: CommitmentAdminApp.border,
-          ),
+          bottom: BorderSide(color: CommitmentAdminApp.border),
         ),
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 125,
             child: Text(
               label,
-              style: const TextStyle(
-                color:
-                    CommitmentAdminApp.textGrey,
-              ),
+              style: const TextStyle(color: CommitmentAdminApp.textGrey),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -3664,23 +3870,15 @@ class _CommitmentsPageState
     );
   }
 
-  void _editCommitment(
-    CommitmentRecord item,
-  ) {
-    final title =
-        TextEditingController(text: item.title);
-    final description =
-        TextEditingController(
-      text: item.description,
-    );
+  void _editCommitment(CommitmentRecord item) {
+    final title = TextEditingController(text: item.title);
+    final description = TextEditingController(text: item.description);
 
     showDialog(
       context: context,
-      builder: (_) {
+      builder: (dialogContext) {
         return AlertDialog(
-          title: const Text(
-            'Edit Commitment',
-          ),
+          title: const Text('Edit Commitment'),
           content: SizedBox(
             width: 500,
             child: Column(
@@ -3688,8 +3886,7 @@ class _CommitmentsPageState
               children: [
                 TextField(
                   controller: title,
-                  decoration:
-                      const InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Commitment',
                   ),
                 ),
@@ -3697,8 +3894,7 @@ class _CommitmentsPageState
                 TextField(
                   controller: description,
                   maxLines: 3,
-                  decoration:
-                      const InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Description',
                   ),
                 ),
@@ -3707,20 +3903,17 @@ class _CommitmentsPageState
           ),
           actions: [
             TextButton(
-              onPressed: () =>
-                  Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancel'),
             ),
             FilledButton(
               onPressed: () {
                 setState(() {
-                  item.title =
-                      title.text.trim();
-                  item.description =
-                      description.text.trim();
+                  item.title = title.text.trim();
+                  item.description = description.text.trim();
                 });
 
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
               },
               child: const Text('Save'),
             ),
@@ -3730,40 +3923,31 @@ class _CommitmentsPageState
     );
   }
 
-  void _deleteCommitment(
-    CommitmentRecord item,
-  ) {
+  void _deleteCommitment(CommitmentRecord item) {
     showDialog(
       context: context,
-      builder: (_) {
+      builder: (dialogContext) {
         return AlertDialog(
-          title: const Text(
-            'Delete Commitment?',
-          ),
+          title: const Text('Delete Commitment?'),
           content: Text(
             'Are you sure you want to delete "${item.title}"?',
           ),
           actions: [
             TextButton(
-              onPressed: () =>
-                  Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancel'),
             ),
             FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor:
-                    const Color(0xFFE83E3E),
+                backgroundColor: const Color(0xFFE83E3E),
+                foregroundColor: Colors.white,
               ),
               onPressed: () {
                 setState(() {
                   commitments.remove(item);
-
-                  if (currentPage > totalPages) {
-                    currentPage = totalPages;
-                  }
                 });
 
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
               },
               child: const Text('Delete'),
             ),
@@ -3798,38 +3982,27 @@ class _CommitmentsPageState
     final csv = rows
         .map(
           (row) => row
-              .map(
-                (value) =>
-                    '"${value.replaceAll('"', '""')}"',
-              )
+              .map((value) => '"${value.replaceAll('"', '""')}"')
               .join(','),
         )
         .join('\n');
 
-    final bytes = html.Blob(
+    final blob = html.Blob(
       [csv],
       'text/csv;charset=utf-8',
     );
 
-    final url =
-        html.Url.createObjectUrlFromBlob(bytes);
+    final url = html.Url.createObjectUrlFromBlob(blob);
 
-    final anchor = html.AnchorElement(
-      href: url,
-    )
-      ..setAttribute(
-        'download',
-        'commitments.csv',
-      )
+    html.AnchorElement(href: url)
+      ..setAttribute('download', 'commitments.csv')
       ..click();
 
     html.Url.revokeObjectUrl(url);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text(
-          'Commitments CSV exported successfully',
-        ),
+        content: Text('Commitments CSV exported successfully'),
       ),
     );
   }
@@ -3841,30 +4014,26 @@ class _CommitmentsPageState
 
 class PlaceholderPage extends StatelessWidget {
   final String title;
+  final VoidCallback onBack;
 
   const PlaceholderPage({
     super.key,
     required this.title,
+    required this.onBack,
   });
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          32,
-          30,
-          32,
-          45,
-        ),
+        padding: const EdgeInsets.fromLTRB(32, 30, 32, 45),
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PageHeader(
               title: title,
-              subtitle:
-                  '$title management and monitoring',
+              subtitle: '$title management and monitoring',
+              onBack: onBack,
             ),
             Container(
               width: double.infinity,
@@ -3874,8 +4043,7 @@ class PlaceholderPage extends StatelessWidget {
                 child: Text(
                   'Coming Soon',
                   style: TextStyle(
-                    color:
-                        CommitmentAdminApp.textGrey,
+                    color: CommitmentAdminApp.textGrey,
                     fontSize: 24,
                     fontWeight: FontWeight.w500,
                   ),
