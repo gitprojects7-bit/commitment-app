@@ -359,68 +359,217 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
+  void showProfileDetails() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        Widget row(String label, String value) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 110,
+                  child: Text(
+                    label,
+                    style: const TextStyle(color: CommitmentAdminApp.textGrey),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    value,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: SizedBox(
+            width: 460,
+            child: Padding(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Color(0xFFE3EAF1),
+                        child: Icon(
+                          Icons.person,
+                          size: 34,
+                          color: Color(0xFF9AA8B5),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Admin',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Text(
+                              'Super Admin',
+                              style: TextStyle(
+                                color: CommitmentAdminApp.textGrey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  const Divider(),
+                  row('Name', 'Admin'),
+                  row('Email', 'admin@example.com'),
+                  row('Role', 'Super Admin'),
+                  row('Phone', '+91 XXXXX XXXXX'),
+                  row('Last Login', '29 Sep 2026'),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showSettings() {
+    bool emailAlerts = true;
+    bool popupAlerts = true;
+    bool twoFactor = false;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Settings'),
+              content: SizedBox(
+                width: 420,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Email alerts'),
+                      value: emailAlerts,
+                      onChanged: (v) => setDialogState(() => emailAlerts = v),
+                    ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Popup alerts'),
+                      value: popupAlerts,
+                      onChanged: (v) => setDialogState(() => popupAlerts = v),
+                    ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Two-factor authentication'),
+                      value: twoFactor,
+                      onChanged: (v) => setDialogState(() => twoFactor = v),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Close'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GlassBackground(
         child: Row(
-        children: [
-          AdminSidebar(
-            selectedItem: selectedItem,
-            onSelected: selectItem,
-            onLogout: logout,
-          ),
-          Expanded(
-            child: _buildPage(),
-          ),
-        ],
+          children: [
+            AdminSidebar(
+              selectedItem: selectedItem,
+              onSelected: selectItem,
+            ),
+            Expanded(
+              child: _buildPage(),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildPage() {
+    final profile = _ProfileMenu(
+      onProfile: showProfileDetails,
+      onSettings: showSettings,
+      onLogout: logout,
+    );
+
     switch (selectedItem) {
       case 'Dashboard':
         return DashboardPage(
           onCommitmentsPressed: () => selectItem('Commitments'),
           onBack: goBack,
-          onLogout: logout,
+          profile: profile,
         );
 
       case 'Users':
         return UsersPage(
           onBack: goBack,
+          profile: profile,
         );
 
       case 'Commitments':
         return CommitmentsPage(
           onBack: goBack,
+          profile: profile,
         );
 
       default:
         return PlaceholderPage(
           title: selectedItem,
           onBack: goBack,
+          profile: profile,
         );
     }
   }
 }
 
 // ============================================================
-// SIDEBAR  (unchanged)
+// SIDEBAR  (Logout removed)
 // ============================================================
 
 class AdminSidebar extends StatelessWidget {
   final String selectedItem;
   final Function(String) onSelected;
-  final VoidCallback onLogout;
 
   const AdminSidebar({
     super.key,
     required this.selectedItem,
     required this.onSelected,
-    required this.onLogout,
   });
 
   static const items = [
@@ -494,7 +643,7 @@ class AdminSidebar extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
@@ -561,38 +710,6 @@ class AdminSidebar extends StatelessWidget {
                   ),
                 );
               },
-            ),
-          ),
-          const Divider(
-            height: 1,
-            color: Color(0x332F80B7),
-          ),
-          InkWell(
-            onTap: onLogout,
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(28),
-            ),
-            child: const SizedBox(
-              height: 68,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 28),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.logout,
-                      color: Color(0xFF52606D),
-                    ),
-                    SizedBox(width: 15),
-                    Text(
-                      'Logout',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: CommitmentAdminApp.textDark,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
           ),
         ],
@@ -917,13 +1034,13 @@ const Color _dashBlue = Color(0xFF2A7DE1);
 class DashboardPage extends StatefulWidget {
   final VoidCallback onCommitmentsPressed;
   final VoidCallback onBack;
-  final VoidCallback onLogout;
+  final Widget profile;
 
   const DashboardPage({
     super.key,
     required this.onCommitmentsPressed,
     required this.onBack,
-    required this.onLogout,
+    required this.profile,
   });
 
   @override
@@ -999,7 +1116,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     children: [
                       _buildGrowthCard(),
                       const SizedBox(height: 18),
-                      _buildAlertCard(),
+                      _buildCommitmentToday(),
                     ],
                   );
                 }
@@ -1009,7 +1126,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     Expanded(flex: 6, child: _buildGrowthCard()),
                     const SizedBox(width: 18),
-                    Expanded(flex: 5, child: _buildAlertCard()),
+                    Expanded(flex: 5, child: _buildCommitmentToday()),
                   ],
                 );
               },
@@ -1020,7 +1137,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 if (constraints.maxWidth < 1050) {
                   return Column(
                     children: [
-                      _buildCommitmentToday(),
+                      _buildAlertCard(),
                       const SizedBox(height: 18),
                       _buildBusinessSnapshot(),
                     ],
@@ -1030,7 +1147,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(flex: 6, child: _buildCommitmentToday()),
+                    Expanded(flex: 6, child: _buildAlertCard()),
                     const SizedBox(width: 18),
                     Expanded(flex: 5, child: _buildBusinessSnapshot()),
                   ],
@@ -1080,7 +1197,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ],
             ),
           ),
-          _ProfileMenu(onLogout: widget.onLogout),
+          widget.profile,
         ],
       ),
     );
@@ -1274,71 +1391,95 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildAlertCard() {
     return Container(
-      height: 300,
-      padding: const EdgeInsets.all(20),
+      height: _bottomRowHeight,
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       decoration: dashCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            children: [
-              Icon(Icons.shield, color: _dashBlue, size: 24),
-              SizedBox(width: 12),
-              Text(
-                'Alert Health',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: _dashTitle,
+          const SizedBox(
+            height: 38,
+            child: Row(
+              children: [
+                Icon(Icons.shield, color: _dashBlue, size: 22),
+                SizedBox(width: 12),
+                Text(
+                  'Alert Health',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: _dashTitle,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const Spacer(),
-          _healthBar('Popup Delivered', 94),
-          const Spacer(),
-          _healthBar('Notification Delivered', 97),
-          const Spacer(),
-          _healthBar('Email Delivered', 89),
-          const Spacer(),
-          _healthBar('Failed Delivery', 6),
-          const Spacer(),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _healthBar('Popup Delivered', 94, const Color(0xFF2A7DE1)),
+                _healthBar(
+                    'Notification Delivered', 97, const Color(0xFF2EAD54)),
+                _healthBar('Email Delivered', 89, const Color(0xFF7B61FF)),
+                _healthBar('Failed Delivery', 6, const Color(0xFFE83E3E)),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _healthBar(String title, int percentage) {
+  Widget _healthBar(String title, int percentage, Color color) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 13.5,
                   color: CommitmentAdminApp.textDark,
                 ),
               ),
             ),
-            Text(
-              '$percentage%',
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: color.withAlpha(30),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '$percentage%',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  color: color,
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: LinearProgressIndicator(
             value: percentage / 100,
-            minHeight: 6,
-            backgroundColor: const Color(0xFFE6EEF5),
-            color: _dashBlue,
+            minHeight: 8,
+            backgroundColor: color.withAlpha(35),
+            color: color,
           ),
         ),
       ],
@@ -1349,7 +1490,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildCommitmentToday() {
     return Container(
-      height: _bottomRowHeight,
+      height: 300,
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       decoration: dashCardDecoration(),
       child: Column(
@@ -1398,56 +1539,84 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           const SizedBox(height: 12),
-          const Expanded(
-            child: Row(
+          Expanded(
+            child: Column(
               children: [
-                Expanded(
-                  child: _TodayTile(
-                    number: '25',
-                    label: 'Created',
-                    icon: Icons.calendar_month_outlined,
-                    color: Color(0xFF2A7DE1),
-                    background: Color(0xFFEAF3FD),
+                const Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _TodayBox(
+                          label: 'Created',
+                          value: '25',
+                          icon: Icons.calendar_month_outlined,
+                          color: Color(0xFF5AA9F0),
+                          background: Color(0xFFEAF3FD),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _TodayBox(
+                          label: 'Completed',
+                          value: '18',
+                          icon: Icons.check,
+                          color: Color(0xFF2EAD54),
+                          background: Color(0xFFE8F6EC),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: _TodayTile(
-                    number: '18',
-                    label: 'Completed',
-                    icon: Icons.check_circle,
-                    color: Color(0xFF2EAD54),
-                    background: Color(0xFFE8F6EC),
+                const SizedBox(height: 12),
+                const Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _TodayBox(
+                          label: 'Late',
+                          value: '3',
+                          icon: Icons.schedule,
+                          color: Color(0xFFF5A623),
+                          background: Color(0xFFFFF3E0),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _TodayBox(
+                          label: 'Missed',
+                          value: '2',
+                          icon: Icons.priority_high,
+                          color: Color(0xFFE83E3E),
+                          background: Color(0xFFFFE9E9),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: _TodayTile(
-                    number: '3',
-                    label: 'Late',
-                    icon: Icons.schedule,
-                    color: Color(0xFFF5A623),
-                    background: Color(0xFFFFF3E0),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: _TodayTile(
-                    number: '2',
-                    label: 'Missed',
-                    icon: Icons.warning_rounded,
-                    color: Color(0xFFE83E3E),
-                    background: Color(0xFFFFE9E9),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: _TodayTile(
-                    number: '2',
-                    label: 'Cancelled',
-                    icon: Icons.cancel,
-                    color: Color(0xFF7B61FF),
-                    background: Color(0xFFEFEBFF),
+                const SizedBox(height: 12),
+                const Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _TodayBox(
+                          label: 'Cancelled',
+                          value: '2',
+                          icon: Icons.close,
+                          color: Color(0xFF9B87F5),
+                          background: Color(0xFFEFEBFF),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _TodayBox(
+                          label: 'Rescheduled',
+                          value: '1',
+                          icon: Icons.update,
+                          color: Color(0xFF7B61FF),
+                          background: Color(0xFFF2E9FF),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -1457,7 +1626,6 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
     );
   }
-
   // ---------- Business Snapshot (Month / Year) ----------
 
   Widget _buildBusinessSnapshot() {
@@ -1573,117 +1741,107 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
-// ---------- Profile (top right) ----------
+// ---------- Profile (top right, shown on every page) ----------
 
 class _ProfileMenu extends StatelessWidget {
+  final VoidCallback onProfile;
+  final VoidCallback onSettings;
   final VoidCallback onLogout;
 
-  const _ProfileMenu({required this.onLogout});
+  const _ProfileMenu({
+    required this.onProfile,
+    required this.onSettings,
+    required this.onLogout,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            IconButton(
-              onPressed: () {},
-              tooltip: 'Notifications',
-              icon: const Icon(
-                Icons.notifications_none_rounded,
-                color: Color(0xFF52606D),
-                size: 26,
-              ),
-            ),
-            Positioned(
-              top: 10,
-              right: 11,
-              child: Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE83E3E),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(width: 6),
-        PopupMenuButton<String>(
-          tooltip: 'Profile',
-          offset: const Offset(0, 48),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return PopupMenuButton<String>(
+      tooltip: 'Profile',
+      offset: const Offset(0, 48),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      onSelected: (value) {
+        if (value == 'Profile') {
+          onProfile();
+        } else if (value == 'Settings') {
+          onSettings();
+        } else if (value == 'Logout') {
+          onLogout();
+        }
+      },
+      itemBuilder: (_) => const [
+        PopupMenuItem(
+          value: 'Profile',
+          child: Row(
+            children: [
+              Icon(Icons.person_outline, size: 18),
+              SizedBox(width: 10),
+              Text('My Profile'),
+            ],
           ),
-          onSelected: (value) {
-            if (value == 'Logout') onLogout();
-          },
-          itemBuilder: (_) => const [
-            PopupMenuItem(
-              value: 'Profile',
-              child: Row(
-                children: [
-                  Icon(Icons.person_outline, size: 18),
-                  SizedBox(width: 10),
-                  Text('My Profile'),
-                ],
-              ),
-            ),
-            PopupMenuItem(
-              value: 'Logout',
-              child: Row(
-                children: [
-                  Icon(Icons.logout, size: 18),
-                  SizedBox(width: 10),
-                  Text('Logout'),
-                ],
-              ),
-            ),
-          ],
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(6, 5, 12, 5),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: const Color(0xFFE8EEF4)),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x0F1E5A8C),
-                  blurRadius: 12,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Color(0xFFE3EAF1),
-                  child: Icon(
-                    Icons.person,
-                    color: Color(0xFF9AA8B5),
-                    size: 24,
-                  ),
-                ),
-                SizedBox(width: 10),
-                Text(
-                  'Admin',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: _dashTitle,
-                  ),
-                ),
-                SizedBox(width: 4),
-                Icon(Icons.keyboard_arrow_down, size: 20),
-              ],
-            ),
+        ),
+        PopupMenuItem(
+          value: 'Settings',
+          child: Row(
+            children: [
+              Icon(Icons.settings_outlined, size: 18),
+              SizedBox(width: 10),
+              Text('Settings'),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'Logout',
+          child: Row(
+            children: [
+              Icon(Icons.logout, size: 18),
+              SizedBox(width: 10),
+              Text('Logout'),
+            ],
           ),
         ),
       ],
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(6, 5, 12, 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: const Color(0xFFE8EEF4)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0F1E5A8C),
+              blurRadius: 12,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 18,
+              backgroundColor: Color(0xFFE3EAF1),
+              child: Icon(
+                Icons.person,
+                color: Color(0xFF9AA8B5),
+                size: 24,
+              ),
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Admin',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: _dashTitle,
+              ),
+            ),
+            SizedBox(width: 4),
+            Icon(Icons.keyboard_arrow_down, size: 20),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1774,16 +1932,16 @@ class _DashStatCard extends StatelessWidget {
   }
 }
 
-class _TodayTile extends StatelessWidget {
-  final String number;
+class _TodayBox extends StatelessWidget {
   final String label;
+  final String value;
   final IconData icon;
   final Color color;
   final Color background;
 
-  const _TodayTile({
-    required this.number,
+  const _TodayBox({
     required this.label,
+    required this.value,
     required this.icon,
     required this.color,
     required this.background,
@@ -1792,33 +1950,48 @@ class _TodayTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 6),
-          Text(
-            number,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
               color: color,
+              shape: BoxShape.circle,
             ),
+            child: Icon(icon, color: Colors.white, size: 18),
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-              color: color,
+          const SizedBox(width: 12),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textGrey,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w700,
+                      color: _dashTitle,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -2124,10 +2297,12 @@ class UserRecord {
 
 class UsersPage extends StatefulWidget {
   final VoidCallback onBack;
+  final Widget profile;
 
   const UsersPage({
     super.key,
     required this.onBack,
+    required this.profile,
   });
 
   @override
@@ -2326,6 +2501,7 @@ class _UsersPageState extends State<UsersPage> {
               title: 'Users',
               subtitle: 'Manage and monitor application users',
               onBack: widget.onBack,
+              action: widget.profile,
             ),
             _buildFilters(),
             const SizedBox(height: 18),
@@ -3135,10 +3311,12 @@ class CommitmentRecord {
 
 class CommitmentsPage extends StatefulWidget {
   final VoidCallback onBack;
+  final Widget profile;
 
   const CommitmentsPage({
     super.key,
     required this.onBack,
+    required this.profile,
   });
 
   @override
@@ -3331,6 +3509,7 @@ class _CommitmentsPageState extends State<CommitmentsPage> {
               title: 'Commitments',
               subtitle: 'Manage and monitor all user commitments',
               onBack: widget.onBack,
+              action: widget.profile,
             ),
             _buildSummaryCards(),
             const SizedBox(height: 22),
@@ -4015,11 +4194,13 @@ class _CommitmentsPageState extends State<CommitmentsPage> {
 class PlaceholderPage extends StatelessWidget {
   final String title;
   final VoidCallback onBack;
+  final Widget profile;
 
   const PlaceholderPage({
     super.key,
     required this.title,
     required this.onBack,
+    required this.profile,
   });
 
   @override
@@ -4034,6 +4215,7 @@ class PlaceholderPage extends StatelessWidget {
               title: title,
               subtitle: '$title management and monitoring',
               onBack: onBack,
+              action: profile,
             ),
             Container(
               width: double.infinity,
