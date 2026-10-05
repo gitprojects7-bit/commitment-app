@@ -1,9 +1,17 @@
 # Miscellaneous
 *.class
 *.log
+hs_err_pid*
+replay_pid*
+*.hprof
 *.pyc
+*.tmp
+*.temp
 *.swp
+*.swo
 .DS_Store
+Thumbs.db
+Desktop.ini
 .atom/
 .build/
 .buildlog/
@@ -17,6 +25,8 @@ migrate_working_dir/
 *.ipr
 *.iws
 .idea/
+.gradle/
+**/local.properties
 
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
@@ -30,7 +40,8 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+**/build/
+**/target/
 /coverage/
 
 # Symbolication related
