@@ -110,6 +110,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
   bool obscurePassword = true;
   bool isSignup = false;
+  bool _showPortal = false;
   bool isLoading = false;
 
   @override
@@ -197,202 +198,281 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: GlassBackground(
-        child: Row(
-          children: [
-            Expanded(
-              flex: 1,
-              child: Container(
-                color: const Color(0x55FFFFFF),
-                padding: const EdgeInsets.all(60),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _BrandLogo(),
-                    SizedBox(height: 35),
-                    Text(
-                      'One clear view of\nevery commitment.',
-                      style: TextStyle(
-                        color: Color(0xFF18232E),
-                        fontSize: 42,
-                        height: 1.15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Manage users, commitments, activity,\nsubscriptions and operational health from\none professional workspace.',
-                      style: TextStyle(
-                        color: Color(0xFF52606D),
-                        fontSize: 16,
-                        height: 1.6,
-                      ),
-                    ),
-                  ],
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final compact = constraints.maxWidth < 760;
+            final panelWidth = compact
+                ? constraints.maxWidth
+                : constraints.maxWidth / 2;
+            final brandWidth = _showPortal && compact
+                ? constraints.maxWidth
+                : _showPortal
+                ? panelWidth
+                : constraints.maxWidth;
+            final brandLeft = _showPortal && compact
+                ? -constraints.maxWidth
+                : 0.0;
+            final portalLeft = _showPortal
+                ? (compact ? 0.0 : panelWidth)
+                : constraints.maxWidth;
+
+            return Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 700),
+                  curve: Curves.easeInOutCubic,
+                  left: brandLeft,
+                  top: 0,
+                  bottom: 0,
+                  width: brandWidth,
+                  child: ClipRect(child: _buildBrandPanel(compact: compact)),
                 ),
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(50),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 430),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isSignup
-                              ? 'Create Admin Account'
-                              : 'Super Admin Portal',
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          isSignup
-                              ? 'Register an administrator account.'
-                              : 'Sign in to continue to the admin workspace.',
-                          style: TextStyle(color: Color(0xFF7D8995)),
-                        ),
-                        const SizedBox(height: 35),
-                        if (isSignup) ...[
-                          const Text(
-                            'Name',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: nameController,
-                            textCapitalization: TextCapitalization.words,
-                            decoration: const InputDecoration(
-                              hintText: 'Admin name',
-                              prefixIcon: Icon(Icons.person_outline),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Role',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: roleController,
-                            decoration: const InputDecoration(
-                              hintText: 'Super Admin',
-                              prefixIcon: Icon(
-                                Icons.admin_panel_settings_outlined,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Phone',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: phoneController,
-                            keyboardType: TextInputType.phone,
-                            decoration: const InputDecoration(
-                              hintText: '+91 9876543210',
-                              prefixIcon: Icon(Icons.phone_outlined),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                        const Text(
-                          'Email',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            hintText: ' Enter email',
-                            prefixIcon: Icon(Icons.email_outlined),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          'Password',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: passwordController,
-                          obscureText: obscurePassword,
-                          decoration: InputDecoration(
-                            hintText: 'Enter password',
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  obscurePassword = !obscurePassword;
-                                });
-                              },
-                              icon: Icon(
-                                obscurePassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 28),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: FilledButton(
-                            onPressed: isLoading ? null : submitAuth,
-                            style: FilledButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : Text(
-                                    isSignup ? 'CREATE ACCOUNT' : 'LOGIN',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        Center(
-                          child: TextButton(
-                            onPressed: isLoading
-                                ? null
-                                : () => setState(() => isSignup = !isSignup),
-                            child: Text(
-                              isSignup
-                                  ? 'Already have an account? Sign in'
-                                  : 'Create admin account',
-                            ),
-                          ),
-                        ),
-                      ],
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 700),
+                  curve: Curves.easeInOutCubic,
+                  left: portalLeft,
+                  top: 0,
+                  bottom: 0,
+                  width: panelWidth,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 350),
+                    opacity: _showPortal ? 1 : 0,
+                    child: ClipRect(
+                      child: _showPortal
+                          ? _buildAuthPanel()
+                          : const SizedBox.expand(),
                     ),
                   ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
+    );
+  }
+
+  Widget _buildBrandPanel({required bool compact}) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeInOutCubic,
+      color: _showPortal ? const Color(0x55FFFFFF) : Colors.transparent,
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 28 : 56,
+        vertical: 32,
+      ),
+      child: Center(
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 590),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const _BrandLogo(),
+                const SizedBox(height: 32),
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  style: TextStyle(
+                    color: CommitmentAdminApp.textDark,
+                    fontSize: _showPortal ? 34 : 42,
+                    height: 1.15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  child: const Text(
+                    'One clear view of\nevery commitment.',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  'Manage users, commitments, activity,\nsubscriptions and operational health from\none professional workspace.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF52606D),
+                    fontSize: 16,
+                    height: 1.6,
+                  ),
+                ),
+                if (!_showPortal) ...[
+                  const SizedBox(height: 30),
+                  SizedBox(
+                    width: 220,
+                    height: 50,
+                    child: FilledButton(
+                      onPressed: () {
+                        setState(() {
+                          _showPortal = true;
+                          isSignup = false;
+                        });
+                      },
+                      child: const Text(
+                        'SIGN UP',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthPanel() {
+    return Container(
+      color: const Color(0x22FFFFFF),
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 430),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 450),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0.18, 0),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+              ),
+              child: _buildAuthForm(key: ValueKey(isSignup)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthForm({required Key key}) {
+    return Column(
+      key: key,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          isSignup ? 'Create Admin Account' : 'Super Admin Portal',
+          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          isSignup
+              ? 'Register an administrator account.'
+              : 'Sign in to continue to the admin workspace.',
+          style: const TextStyle(color: Color(0xFF7D8995)),
+        ),
+        const SizedBox(height: 28),
+        if (isSignup) ...[
+          const Text('Name', style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: nameController,
+            textCapitalization: TextCapitalization.words,
+            decoration: const InputDecoration(
+              hintText: 'Admin name',
+              prefixIcon: Icon(Icons.person_outline),
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Text('Role', style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: roleController,
+            decoration: const InputDecoration(
+              hintText: 'Super Admin',
+              prefixIcon: Icon(Icons.admin_panel_settings_outlined),
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Text('Phone', style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: phoneController,
+            keyboardType: TextInputType.phone,
+            decoration: const InputDecoration(
+              hintText: '9876543210',
+              prefixIcon: Icon(Icons.phone_outlined),
+            ),
+          ),
+          const SizedBox(height: 14),
+        ],
+        const Text('Email', style: TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: emailController,
+          keyboardType: TextInputType.emailAddress,
+          decoration: const InputDecoration(
+            hintText: 'Enter email',
+            prefixIcon: Icon(Icons.email_outlined),
+          ),
+        ),
+        const SizedBox(height: 18),
+        const Text('Password', style: TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: passwordController,
+          obscureText: obscurePassword,
+          decoration: InputDecoration(
+            hintText: 'Enter password',
+            prefixIcon: const Icon(Icons.lock_outline),
+            suffixIcon: IconButton(
+              onPressed: () {
+                setState(() => obscurePassword = !obscurePassword);
+              },
+              icon: Icon(
+                obscurePassword
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: FilledButton(
+            onPressed: isLoading ? null : submitAuth,
+            child: isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(
+                    isSignup ? 'CREATE ACCOUNT' : 'LOGIN',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        Center(
+          child: TextButton(
+            onPressed: isLoading
+                ? null
+                : () => setState(() => isSignup = !isSignup),
+            child: Text(
+              isSignup
+                  ? 'Already have an account? Sign in'
+                  : 'Create admin account',
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -715,6 +795,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       onLogout: logout,
     );
 
+    // Keep route cases in the same order as the managed pages in the sidebar.
     switch (selectedItem) {
       case 'Dashboard':
         return DashboardPage(
@@ -740,6 +821,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
       case 'Notifications':
         return NotificationsPage(onBack: goBack, profile: profile);
+
+      case 'Analytics':
+        return AnalyticsPage(onBack: goBack, profile: profile);
+
+      case 'Attachments':
+        return AttachmentsPage(onBack: goBack, profile: profile);
+
+      case 'Subscription':
+        return SubscriptionPage(onBack: goBack, profile: profile);
+
+      case 'Support':
+        return SupportPage(onBack: goBack, profile: profile);
+
+      case 'Reports':
+        return ReportsPage(onBack: goBack, profile: profile);
 
       default:
         return PlaceholderPage(
@@ -794,12 +890,12 @@ class AdminSidebar extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(22, 25, 18, 20),
+            padding: const EdgeInsets.fromLTRB(20, 18, 16, 14),
             child: Row(
               children: [
                 Container(
-                  width: 45,
-                  height: 45,
+                  width: 42,
+                  height: 42,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF5DB2EC), Color(0xFF2F80B7)],
@@ -837,7 +933,7 @@ class AdminSidebar extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
@@ -846,13 +942,13 @@ class AdminSidebar extends StatelessWidget {
                 final selected = selectedItem == title;
 
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 5),
+                  padding: const EdgeInsets.only(bottom: 2),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16),
                     onTap: () => onSelected(title),
                     child: Container(
-                      height: 47,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      height: 42,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         gradient: selected
                             ? const LinearGradient(
@@ -881,7 +977,7 @@ class AdminSidebar extends StatelessWidget {
                                 ? const Color(0xFF12324A)
                                 : const Color(0xFF52606D),
                           ),
-                          const SizedBox(width: 15),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               title,
@@ -1926,6 +2022,333 @@ class _DashboardPageState extends State<DashboardPage> {
                     ],
                   ),
                 ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Analytics chart and metric widgets used by AnalyticsPage.
+class _AnalyticsMetric {
+  final String title;
+  final String value;
+  final String change;
+  final bool positive;
+  final Color color;
+  final IconData icon;
+
+  const _AnalyticsMetric({
+    required this.title,
+    required this.value,
+    required this.change,
+    required this.positive,
+    required this.color,
+    required this.icon,
+  });
+}
+
+class _AnalyticsMetricCard extends StatelessWidget {
+  final _AnalyticsMetric metric;
+
+  const _AnalyticsMetricCard({required this.metric});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 118),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: cardDecoration(radius: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Icon(metric.icon, size: 17, color: metric.color),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  metric.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textGrey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            metric.value,
+            style: const TextStyle(
+              color: CommitmentAdminApp.textDark,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            metric.change,
+            style: TextStyle(
+              color: metric.positive
+                  ? const Color(0xFF26945A)
+                  : const Color(0xFFE35D5D),
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnalyticsTrendCard extends StatelessWidget {
+  const _AnalyticsTrendCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 284,
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+      decoration: cardDecoration(radius: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Commitment Score Trend',
+            style: TextStyle(
+              color: CommitmentAdminApp.textDark,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 190,
+            width: double.infinity,
+            child: CustomPaint(painter: _AnalyticsTrendPainter()),
+          ),
+          const SizedBox(height: 8),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _AnalyticsDayLabel('Mon'),
+              _AnalyticsDayLabel('Tue'),
+              _AnalyticsDayLabel('Wed'),
+              _AnalyticsDayLabel('Thu'),
+              _AnalyticsDayLabel('Fri'),
+              _AnalyticsDayLabel('Sat'),
+              _AnalyticsDayLabel('Sun'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnalyticsDayLabel extends StatelessWidget {
+  final String day;
+
+  const _AnalyticsDayLabel(this.day);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      day,
+      style: const TextStyle(
+        color: CommitmentAdminApp.textGrey,
+        fontSize: 10,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
+class _AnalyticsTrendPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    const values = [0.72, 0.52, 0.56, 0.31, 0.27, 0.48, 0.44];
+    final points = [
+      for (var i = 0; i < values.length; i++)
+        Offset(size.width * i / (values.length - 1), size.height * values[i]),
+    ];
+    final gridPaint = Paint()
+      ..color = const Color(0xFFEAF0F5)
+      ..strokeWidth = 1;
+    for (var i = 1; i <= 3; i++) {
+      final y = size.height * i / 4;
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+    }
+
+    final trendPath = Path()..moveTo(points.first.dx, points.first.dy);
+    for (var i = 0; i < points.length - 1; i++) {
+      final current = points[i];
+      final next = points[i + 1];
+      final middleX = (current.dx + next.dx) / 2;
+      trendPath.cubicTo(
+        middleX,
+        current.dy,
+        middleX,
+        next.dy,
+        next.dx,
+        next.dy,
+      );
+    }
+
+    final fillPath = Path.from(trendPath)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    final fillPaint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0x332F80B7), Color(0x002F80B7)],
+      ).createShader(Offset.zero & size);
+    canvas.drawPath(fillPath, fillPaint);
+
+    final linePaint = Paint()
+      ..color = const Color(0xFF2F80B7)
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(trendPath, linePaint);
+
+    final dotPaint = Paint()..color = const Color(0xFF2F80B7);
+    final dotBorder = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    for (final point in points) {
+      canvas.drawCircle(point, 4, dotPaint);
+      canvas.drawCircle(point, 4, dotBorder);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _AnalyticsOutcomeCard extends StatelessWidget {
+  const _AnalyticsOutcomeCard();
+
+  @override
+  Widget build(BuildContext context) {
+    const outcomes = [
+      (
+        label: 'Kept',
+        value: 72,
+        detail: 'On-time commitments',
+        color: Color(0xFF2EAD67),
+      ),
+      (
+        label: 'Late',
+        value: 18,
+        detail: 'Completed after due date',
+        color: Color(0xFFE5A534),
+      ),
+      (
+        label: 'Missed',
+        value: 10,
+        detail: 'Not completed',
+        color: Color(0xFFE35D5D),
+      ),
+    ];
+
+    return Container(
+      width: double.infinity,
+      height: 284,
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+      decoration: cardDecoration(radius: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Outcome Breakdown',
+            style: TextStyle(
+              color: CommitmentAdminApp.textDark,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Commitment outcomes this period',
+            style: TextStyle(color: CommitmentAdminApp.textGrey, fontSize: 11),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                for (final outcome in outcomes)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: outcome.color,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 7),
+                          Expanded(
+                            child: Text(
+                              outcome.label,
+                              style: const TextStyle(
+                                color: CommitmentAdminApp.textDark,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            '${outcome.value}%',
+                            style: TextStyle(
+                              color: outcome.color,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15),
+                        child: Text(
+                          outcome.detail,
+                          style: const TextStyle(
+                            color: CommitmentAdminApp.textGrey,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 7),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: LinearProgressIndicator(
+                          value: outcome.value / 100,
+                          minHeight: 9,
+                          color: outcome.color,
+                          backgroundColor: outcome.color.withAlpha(35),
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -4597,7 +5020,6 @@ class LocationMapsPage extends StatefulWidget {
 class _LocationMapsPageState extends State<LocationMapsPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  String _selectedPeriod = 'Today';
 
   static const List<_MapLocation> _locations = [
     _MapLocation(name: 'Meera Patel', x: 0.16, y: 0.33),
@@ -4841,41 +5263,13 @@ class _LocationMapsPageState extends State<LocationMapsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Location & Travel Overview',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: CommitmentAdminApp.textDark,
-                  ),
-                ),
-              ),
-              DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedPeriod,
-                  borderRadius: BorderRadius.circular(12),
-                  items: const [
-                    DropdownMenuItem(value: 'Today', child: Text('Today')),
-                    DropdownMenuItem(
-                      value: 'This week',
-                      child: Text('This week'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'This month',
-                      child: Text('This month'),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _selectedPeriod = value);
-                    }
-                  },
-                ),
-              ),
-            ],
+          const Text(
+            'Location & Travel Overview',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: CommitmentAdminApp.textDark,
+            ),
           ),
           const SizedBox(height: 12),
           LayoutBuilder(
@@ -5101,66 +5495,115 @@ class _LocationSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tilt3D(
       maxTilt: 0.045,
-      child: Container(
-        height: 88,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        decoration: dashCardDecoration(),
-        child: Row(
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [summary.color, summary.color.withAlpha(175)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+      child: _LocationSummaryTile(summary: summary),
+    );
+  }
+}
+
+class _LocationSummaryTile extends StatefulWidget {
+  final _LocationSummary summary;
+
+  const _LocationSummaryTile({required this.summary});
+
+  @override
+  State<_LocationSummaryTile> createState() => _LocationSummaryTileState();
+}
+
+class _LocationSummaryTileState extends State<_LocationSummaryTile> {
+  String _period = 'Today';
+
+  @override
+  Widget build(BuildContext context) {
+    final summary = widget.summary;
+    return Container(
+      height: 118,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: dashCardDecoration(),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [summary.color, summary.color.withAlpha(175)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(13),
+              boxShadow: [
+                BoxShadow(
+                  color: summary.color.withAlpha(65),
+                  blurRadius: 9,
+                  offset: const Offset(0, 4),
                 ),
-                borderRadius: BorderRadius.circular(13),
-                boxShadow: [
-                  BoxShadow(
-                    color: summary.color.withAlpha(65),
-                    blurRadius: 9,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(summary.icon, color: Colors.white, size: 18),
+              ],
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    summary.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+            child: Icon(summary.icon, color: Colors.white, size: 18),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  summary.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textGrey,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                FittedBox(
+                  alignment: Alignment.centerLeft,
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    summary.value,
                     style: const TextStyle(
-                      color: CommitmentAdminApp.textGrey,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                      color: _dashTitle,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  FittedBox(
-                    alignment: Alignment.centerLeft,
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      summary.value,
+                ),
+                SizedBox(
+                  height: 26,
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _period,
+                      isDense: true,
+                      iconSize: 15,
                       style: const TextStyle(
-                        color: _dashTitle,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
+                        color: CommitmentAdminApp.textGrey,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
                       ),
+                      borderRadius: BorderRadius.circular(10),
+                      items: const [
+                        DropdownMenuItem(value: 'Today', child: Text('Today')),
+                        DropdownMenuItem(
+                          value: 'This week',
+                          child: Text('This week'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'This month',
+                          child: Text('This month'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) setState(() => _period = value);
+                      },
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -5170,11 +5613,26 @@ class _LocationSummaryCard extends StatelessWidget {
 // FOLLOW-UPS PAGE
 // ============================================================
 
-class FollowUpsPage extends StatelessWidget {
+class FollowUpsPage extends StatefulWidget {
   final VoidCallback onBack;
   final Widget profile;
 
   const FollowUpsPage({super.key, required this.onBack, required this.profile});
+
+  @override
+  State<FollowUpsPage> createState() => _FollowUpsPageState();
+}
+
+class _FollowUpsPageState extends State<FollowUpsPage> {
+  static const List<String> _filters = [
+    'All',
+    'Open',
+    'Due Today',
+    'Overdue',
+    'Completed',
+  ];
+
+  String _selectedFilter = 'Due Today';
 
   static const List<_FollowUpRecord> _followUps = [
     _FollowUpRecord(
@@ -5220,16 +5678,34 @@ class FollowUpsPage extends StatelessWidget {
             PageHeader(
               title: 'Follow Ups',
               subtitle: 'Track and manage follow-up commitments',
-              onBack: onBack,
-              action: profile,
+              onBack: widget.onBack,
+              action: widget.profile,
             ),
             _buildStats(),
             const SizedBox(height: 18),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 10, left: 2),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (var index = 0; index < _filters.length; index++) ...[
+                    if (index > 0) const SizedBox(width: 8),
+                    ChoiceChip(
+                      label: Text(_filters[index]),
+                      selected: _selectedFilter == _filters[index],
+                      onSelected: (_) {
+                        setState(() => _selectedFilter = _filters[index]);
+                      },
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10, left: 2),
               child: Text(
-                'Due today',
-                style: TextStyle(
+                _selectedFilter == 'All' ? 'All follow-ups' : _selectedFilter,
+                style: const TextStyle(
                   color: _dashTitle,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -5289,7 +5765,11 @@ class FollowUpsPage extends StatelessWidget {
             for (final stat in stats)
               SizedBox(
                 width: tileWidth,
-                child: _FollowUpStatTile(stat: stat),
+                child: _FollowUpStatTile(
+                  stat: stat,
+                  selected: _selectedFilter == stat.title,
+                  onTap: () => setState(() => _selectedFilter = stat.title),
+                ),
               ),
           ],
         );
@@ -5298,6 +5778,11 @@ class FollowUpsPage extends StatelessWidget {
   }
 
   Widget _buildFollowUpsTable() {
+    final visibleFollowUps =
+        _selectedFilter == 'All' || _selectedFilter == 'Due Today'
+        ? _followUps
+        : const <_FollowUpRecord>[];
+
     return Container(
       width: double.infinity,
       decoration: cardDecoration(),
@@ -5323,13 +5808,26 @@ class FollowUpsPage extends StatelessWidget {
                       commitment: 'Original Commitment',
                       due: 'Due',
                     ),
-                    for (final followUp in _followUps)
-                      _FollowUpTableRow(
-                        followUp: followUp.title,
-                        user: followUp.user,
-                        commitment: followUp.commitment,
-                        due: followUp.due,
-                      ),
+                    if (visibleFollowUps.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 26),
+                        child: Text(
+                          'No follow-up details for this selection',
+                          style: TextStyle(
+                            color: CommitmentAdminApp.textGrey,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      )
+                    else
+                      for (final followUp in visibleFollowUps)
+                        _FollowUpTableRow(
+                          followUp: followUp.title,
+                          user: followUp.user,
+                          commitment: followUp.commitment,
+                          due: followUp.due,
+                        ),
                   ],
                 ),
               ),
@@ -5371,68 +5869,95 @@ class _FollowUpStat {
 
 class _FollowUpStatTile extends StatelessWidget {
   final _FollowUpStat stat;
+  final bool selected;
+  final VoidCallback onTap;
 
-  const _FollowUpStatTile({required this.stat});
+  const _FollowUpStatTile({
+    required this.stat,
+    required this.selected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Tilt3D(
       maxTilt: 0.045,
-      child: Container(
-        height: 76,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: dashCardDecoration(),
-        child: Row(
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [stat.color, stat.color.withAlpha(175)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(18),
+          child: Container(
+            height: 76,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: selected ? stat.color : const Color(0xFFE4EDF4),
+                width: selected ? 1.5 : 1,
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x101E5A8C),
+                  blurRadius: 14,
+                  offset: Offset(0, 5),
                 ),
-                borderRadius: BorderRadius.circular(11),
-                boxShadow: [
-                  BoxShadow(
-                    color: stat.color.withAlpha(55),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(stat.icon, color: Colors.white, size: 18),
+              ],
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    stat.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: CommitmentAdminApp.textGrey,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+            child: Row(
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [stat.color, stat.color.withAlpha(175)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                    borderRadius: BorderRadius.circular(11),
+                    boxShadow: [
+                      BoxShadow(
+                        color: stat.color.withAlpha(55),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    stat.value,
-                    style: const TextStyle(
-                      color: _dashTitle,
-                      fontSize: 19,
-                      fontWeight: FontWeight.w800,
-                    ),
+                  child: Icon(stat.icon, color: Colors.white, size: 18),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        stat.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: CommitmentAdminApp.textGrey,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        stat.value,
+                        style: const TextStyle(
+                          color: _dashTitle,
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -5516,8 +6041,6 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  String _selectedPeriod = 'Last 24h';
-
   static const List<_NotificationDelivery> _deliveries = [
     _NotificationDelivery(
       time: '10:42 AM',
@@ -5614,35 +6137,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Expanded(
-              child: Text(
-                'Push & Email Delivery Health',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: CommitmentAdminApp.textDark,
-                ),
-              ),
-            ),
-            DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: _selectedPeriod,
-                borderRadius: BorderRadius.circular(12),
-                items: const [
-                  DropdownMenuItem(value: 'Last 24h', child: Text('Last 24h')),
-                  DropdownMenuItem(value: 'Last 7d', child: Text('Last 7d')),
-                  DropdownMenuItem(value: 'Last 30d', child: Text('Last 30d')),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _selectedPeriod = value);
-                  }
-                },
-              ),
-            ),
-          ],
+        const Text(
+          'Push & Email Delivery Health',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            color: CommitmentAdminApp.textDark,
+          ),
         ),
         const SizedBox(height: 10),
         LayoutBuilder(
@@ -5747,18 +6248,26 @@ class _DeliveryMetric {
   });
 }
 
-class _DeliveryHealthMetric extends StatelessWidget {
+class _DeliveryHealthMetric extends StatefulWidget {
   final _DeliveryMetric metric;
 
   const _DeliveryHealthMetric({required this.metric});
 
   @override
+  State<_DeliveryHealthMetric> createState() => _DeliveryHealthMetricState();
+}
+
+class _DeliveryHealthMetricState extends State<_DeliveryHealthMetric> {
+  String _period = 'Last 24h';
+
+  @override
   Widget build(BuildContext context) {
+    final metric = widget.metric;
     return Tilt3D(
       maxTilt: 0.045,
       child: Container(
-        height: 76,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        height: 112,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: dashCardDecoration(),
         child: Row(
           children: [
@@ -5812,7 +6321,40 @@ class _DeliveryHealthMetric extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(
+                    height: 25,
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _period,
+                        isDense: true,
+                        iconSize: 15,
+                        style: const TextStyle(
+                          color: CommitmentAdminApp.textGrey,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'Last 24h',
+                            child: Text('Last 24h'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Last 7d',
+                            child: Text('Last 7d'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Last 30d',
+                            child: Text('Last 30d'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) setState(() => _period = value);
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 3),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: LinearProgressIndicator(
@@ -5946,8 +6488,1887 @@ class _NotificationDeliveryRow extends StatelessWidget {
 }
 
 // ============================================================
-// PLACEHOLDER
+// ANALYTICS PAGE
 // ============================================================
+
+class AnalyticsPage extends StatelessWidget {
+  final VoidCallback onBack;
+  final Widget profile;
+
+  const AnalyticsPage({super.key, required this.onBack, required this.profile});
+
+  @override
+  Widget build(BuildContext context) {
+    const metrics = [
+      _AnalyticsMetric(
+        title: 'Platform',
+        value: '84%',
+        change: '↑ 6.2%',
+        positive: true,
+        color: Color(0xFF2F80B7),
+        icon: Icons.insights_outlined,
+      ),
+      _AnalyticsMetric(
+        title: 'Score',
+        value: '86',
+        change: '↑ 4.5%',
+        positive: true,
+        color: Color(0xFF7B61FF),
+        icon: Icons.stars_outlined,
+      ),
+      _AnalyticsMetric(
+        title: 'Kept',
+        value: '72%',
+        change: '↑ 8.1%',
+        positive: true,
+        color: Color(0xFF2EAD67),
+        icon: Icons.task_alt_outlined,
+      ),
+      _AnalyticsMetric(
+        title: 'Late',
+        value: '18%',
+        change: '↓ 3.2%',
+        positive: true,
+        color: Color(0xFFE5A534),
+        icon: Icons.schedule_outlined,
+      ),
+      _AnalyticsMetric(
+        title: 'Missed',
+        value: '10%',
+        change: '↓ 2%',
+        positive: true,
+        color: Color(0xFFE35D5D),
+        icon: Icons.event_busy_outlined,
+      ),
+    ];
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: _adminPagePadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Analytics',
+              subtitle: 'Commitment performance overview',
+              onBack: onBack,
+              action: profile,
+            ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final columns = constraints.maxWidth >= 1100
+                    ? 5
+                    : constraints.maxWidth >= 600
+                    ? 3
+                    : 2;
+                const spacing = 12.0;
+                final width =
+                    (constraints.maxWidth - spacing * (columns - 1)) / columns;
+                return Wrap(
+                  spacing: spacing,
+                  runSpacing: spacing,
+                  children: [
+                    for (final metric in metrics)
+                      SizedBox(
+                        width: width,
+                        child: _AnalyticsMetricCard(metric: metric),
+                      ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 18),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                const trendCard = _AnalyticsTrendCard();
+                const outcomeCard = _AnalyticsOutcomeCard();
+                if (constraints.maxWidth < 760) {
+                  return const Column(
+                    children: [trendCard, SizedBox(height: 14), outcomeCard],
+                  );
+                }
+                return const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 3, child: trendCard),
+                    SizedBox(width: 14),
+                    Expanded(flex: 2, child: outcomeCard),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// ATTACHMENTS PAGE
+// ============================================================
+
+class AttachmentsPage extends StatefulWidget {
+  final VoidCallback onBack;
+  final Widget profile;
+
+  const AttachmentsPage({
+    super.key,
+    required this.onBack,
+    required this.profile,
+  });
+
+  @override
+  State<AttachmentsPage> createState() => _AttachmentsPageState();
+}
+
+class _AttachmentsPageState extends State<AttachmentsPage> {
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
+  String _typeFilter = 'All types';
+  String _userFilter = 'All users';
+
+  static const _files = [
+    _AttachmentRecord(
+      name: 'Contract.pdf',
+      type: 'PDF',
+      size: '2.4 MB',
+      user: 'John Smith',
+      commitment: 'Project A',
+      date: 'Sep 30',
+    ),
+    _AttachmentRecord(
+      name: 'Report.docx',
+      type: 'DOCX',
+      size: '1.8 MB',
+      user: 'Sarah Lee',
+      commitment: 'Meeting',
+      date: 'Sep 29',
+    ),
+    _AttachmentRecord(
+      name: 'Image.png',
+      type: 'PNG',
+      size: '840 KB',
+      user: 'Alex Kumar',
+      commitment: 'Follow Up',
+      date: 'Sep 29',
+    ),
+    _AttachmentRecord(
+      name: 'Agreement.pdf',
+      type: 'PDF',
+      size: '3.1 MB',
+      user: 'John Smith',
+      commitment: 'Project B',
+      date: 'Sep 28',
+    ),
+  ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<_AttachmentRecord> get _filteredFiles {
+    final query = _query.trim().toLowerCase();
+    return _files.where((file) {
+      final matchesQuery =
+          query.isEmpty ||
+          file.name.toLowerCase().contains(query) ||
+          file.user.toLowerCase().contains(query) ||
+          file.commitment.toLowerCase().contains(query);
+      return matchesQuery &&
+          (_typeFilter == 'All types' || file.type == _typeFilter) &&
+          (_userFilter == 'All users' || file.user == _userFilter);
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: _adminPagePadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Attachments',
+              subtitle: 'Manage uploaded files and commitment documents',
+              onBack: widget.onBack,
+              action: widget.profile,
+            ),
+            _buildSummaryCards(),
+            const SizedBox(height: 16),
+            _buildFilters(),
+            const SizedBox(height: 14),
+            _buildFilesTable(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryCards() {
+    const summaries = [
+      _AttachmentSummaryData(
+        'Files',
+        '248',
+        '↑ 12.4%',
+        Icons.attach_file_outlined,
+        Color(0xFF2F80B7),
+      ),
+      _AttachmentSummaryData(
+        'Storage',
+        '12.6 GB',
+        '↑ 4.2%',
+        Icons.storage_outlined,
+        Color(0xFF7B61FF),
+      ),
+      _AttachmentSummaryData(
+        'Upload Today',
+        '18',
+        '↑ 8.6%',
+        Icons.cloud_upload_outlined,
+        Color(0xFF2EAD67),
+      ),
+      _AttachmentSummaryData(
+        'Access Events',
+        '1,284',
+        '↑ 6.8%',
+        Icons.visibility_outlined,
+        Color(0xFFE5A534),
+      ),
+    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 950
+            ? 4
+            : constraints.maxWidth >= 540
+            ? 2
+            : 1;
+        const gap = 12.0;
+        final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (final summary in summaries)
+              SizedBox(
+                width: width,
+                child: _AttachmentSummaryCard(summary: summary),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildFilters() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final search = TextField(
+          controller: _searchController,
+          onChanged: (value) => setState(() => _query = value),
+          decoration: const InputDecoration(
+            hintText: 'Search files...',
+            prefixIcon: Icon(Icons.search, size: 20),
+            isDense: true,
+          ),
+        );
+        final type = _buildFilterDropdown(
+          value: _typeFilter,
+          options: const ['All types', 'PDF', 'DOCX', 'PNG'],
+          onChanged: (value) => setState(() => _typeFilter = value),
+        );
+        final user = _buildFilterDropdown(
+          value: _userFilter,
+          options: const ['All users', 'John Smith', 'Sarah Lee', 'Alex Kumar'],
+          onChanged: (value) => setState(() => _userFilter = value),
+        );
+        if (constraints.maxWidth < 650) {
+          return Column(
+            children: [
+              search,
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(child: type),
+                  const SizedBox(width: 10),
+                  Expanded(child: user),
+                ],
+              ),
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(flex: 5, child: search),
+            const SizedBox(width: 12),
+            Expanded(flex: 2, child: type),
+            const SizedBox(width: 12),
+            Expanded(flex: 3, child: user),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterDropdown({
+    required String value,
+    required List<String> options,
+    required ValueChanged<String> onChanged,
+  }) {
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: CommitmentAdminApp.border),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isExpanded: true,
+          borderRadius: BorderRadius.circular(12),
+          items: [
+            for (final option in options)
+              DropdownMenuItem(
+                value: option,
+                child: Text(
+                  option,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+          ],
+          onChanged: (selected) {
+            if (selected != null) onChanged(selected);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilesTable() {
+    final files = _filteredFiles;
+    return Container(
+      width: double.infinity,
+      decoration: cardDecoration(),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            const minWidth = 820.0;
+            final width = constraints.maxWidth < minWidth
+                ? minWidth
+                : constraints.maxWidth;
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: width,
+                child: Column(
+                  children: [
+                    const _AttachmentTableRow(
+                      isHeader: true,
+                      name: 'File',
+                      type: 'Type',
+                      size: 'Size',
+                      user: 'Uploaded By',
+                      commitment: 'Commitment',
+                      date: 'Uploaded',
+                    ),
+                    if (files.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 28),
+                        child: Text(
+                          'No matching files found',
+                          style: TextStyle(
+                            color: CommitmentAdminApp.textGrey,
+                            fontSize: 13,
+                          ),
+                        ),
+                      )
+                    else
+                      for (final file in files)
+                        _AttachmentTableRow(
+                          name: file.name,
+                          type: file.type,
+                          size: file.size,
+                          user: file.user,
+                          commitment: file.commitment,
+                          date: file.date,
+                        ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _AttachmentSummaryData {
+  final String title;
+  final String value;
+  final String change;
+  final IconData icon;
+  final Color color;
+
+  const _AttachmentSummaryData(
+    this.title,
+    this.value,
+    this.change,
+    this.icon,
+    this.color,
+  );
+}
+
+class _AttachmentSummaryCard extends StatelessWidget {
+  final _AttachmentSummaryData summary;
+
+  const _AttachmentSummaryCard({required this.summary});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 110,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: cardDecoration(radius: 16),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: summary.color.withAlpha(24),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(summary.icon, color: summary.color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  summary.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textGrey,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  summary.value,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textDark,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  summary.change,
+                  style: const TextStyle(
+                    color: Color(0xFF26945A),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AttachmentRecord {
+  final String name;
+  final String type;
+  final String size;
+  final String user;
+  final String commitment;
+  final String date;
+
+  const _AttachmentRecord({
+    required this.name,
+    required this.type,
+    required this.size,
+    required this.user,
+    required this.commitment,
+    required this.date,
+  });
+}
+
+class _AttachmentTableRow extends StatelessWidget {
+  final bool isHeader;
+  final String name;
+  final String type;
+  final String size;
+  final String user;
+  final String commitment;
+  final String date;
+
+  const _AttachmentTableRow({
+    this.isHeader = false,
+    required this.name,
+    required this.type,
+    required this.size,
+    required this.user,
+    required this.commitment,
+    required this.date,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isHeader
+        ? CommitmentAdminApp.textGrey
+        : CommitmentAdminApp.textDark;
+    final weight = isHeader ? FontWeight.w700 : FontWeight.w500;
+    return Container(
+      constraints: const BoxConstraints(minHeight: 48),
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        color: isHeader ? const Color(0xFFF4F8FB) : Colors.white,
+        border: const Border(bottom: BorderSide(color: Color(0xFFEAF0F5))),
+      ),
+      child: Row(
+        children: [
+          _cell(5, name, color, weight, isFile: !isHeader),
+          _cell(2, type, color, weight),
+          _cell(2, size, color, weight),
+          _cell(3, user, color, weight),
+          _cell(3, commitment, color, weight),
+          _cell(2, date, color, weight),
+        ],
+      ),
+    );
+  }
+
+  Widget _cell(
+    int flex,
+    String text,
+    Color color,
+    FontWeight weight, {
+    bool isFile = false,
+  }) {
+    final content = Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(color: color, fontSize: 11, fontWeight: weight),
+    );
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: isFile
+            ? Row(
+                children: [
+                  Icon(_fileIcon(text), size: 17, color: _fileColor(text)),
+                  const SizedBox(width: 8),
+                  Expanded(child: content),
+                ],
+              )
+            : content,
+      ),
+    );
+  }
+
+  IconData _fileIcon(String fileName) {
+    if (fileName.endsWith('.pdf')) return Icons.picture_as_pdf_outlined;
+    if (fileName.endsWith('.docx')) return Icons.article_outlined;
+    if (fileName.endsWith('.png')) return Icons.image_outlined;
+    return Icons.insert_drive_file_outlined;
+  }
+
+  Color _fileColor(String fileName) {
+    if (fileName.endsWith('.pdf')) return const Color(0xFFE35D5D);
+    if (fileName.endsWith('.docx')) return const Color(0xFF2F80B7);
+    if (fileName.endsWith('.png')) return const Color(0xFF7B61FF);
+    return CommitmentAdminApp.textGrey;
+  }
+}
+
+// ============================================================
+// SUBSCRIPTION PAGE
+// ============================================================
+
+class SubscriptionPage extends StatefulWidget {
+  final VoidCallback onBack;
+  final Widget profile;
+
+  const SubscriptionPage({
+    super.key,
+    required this.onBack,
+    required this.profile,
+  });
+
+  @override
+  State<SubscriptionPage> createState() => _SubscriptionPageState();
+}
+
+class _SubscriptionPageState extends State<SubscriptionPage> {
+  final TextEditingController _searchController = TextEditingController();
+  String _search = '';
+  String _selectedPlan = 'All plans';
+  String _selectedStatus = 'All statuses';
+
+  static const List<_SubscriptionRecord> _subscriptions = [
+    _SubscriptionRecord(
+      user: 'John Smith',
+      plan: 'Pro',
+      amount: '₹499',
+      nextCharge: '₹499',
+      date: 'Oct 01',
+      status: 'Active',
+    ),
+    _SubscriptionRecord(
+      user: 'Sarah Lee',
+      plan: 'Basic',
+      amount: '₹199',
+      nextCharge: '₹199',
+      date: 'Oct 12',
+      status: 'Active',
+    ),
+    _SubscriptionRecord(
+      user: 'Alex Kumar',
+      plan: 'Pro',
+      amount: '₹499',
+      nextCharge: '₹499',
+      date: 'Oct 20',
+      status: 'Expiring Soon',
+    ),
+    _SubscriptionRecord(
+      user: 'Mike Johnson',
+      plan: 'Basic',
+      amount: '₹199',
+      nextCharge: '—',
+      date: '—',
+      status: 'Cancelled',
+    ),
+  ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<_SubscriptionRecord> get _filteredSubscriptions {
+    final query = _search.trim().toLowerCase();
+    return _subscriptions.where((subscription) {
+      final matchesSearch =
+          query.isEmpty || subscription.user.toLowerCase().contains(query);
+      final matchesPlan =
+          _selectedPlan == 'All plans' || subscription.plan == _selectedPlan;
+      final matchesStatus =
+          _selectedStatus == 'All statuses' ||
+          subscription.status == _selectedStatus;
+      return matchesSearch && matchesPlan && matchesStatus;
+    }).toList();
+  }
+
+  void _showExportDemoMessage() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Subscription export is for demonstration only.'),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: _adminPagePadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Subscription',
+              subtitle: 'Plans, trials and billing status',
+              onBack: widget.onBack,
+              action: widget.profile,
+            ),
+            _buildSummary(),
+            const SizedBox(height: 16),
+            _buildFilters(),
+            const SizedBox(height: 14),
+            _buildSubscriptionTable(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummary() {
+    const summaries = [
+      _SubscriptionSummaryData(
+        title: 'Trial',
+        value: '842',
+        change: '+8.4%',
+        icon: Icons.hourglass_bottom_rounded,
+        color: Color(0xFF2F80B7),
+      ),
+      _SubscriptionSummaryData(
+        title: 'Active',
+        value: '720',
+        change: '+12.2%',
+        icon: Icons.check_circle_outline,
+        color: Color(0xFF2EAD67),
+      ),
+      _SubscriptionSummaryData(
+        title: 'Cancelled',
+        value: '36',
+        change: '+4.1%',
+        icon: Icons.cancel_outlined,
+        color: Color(0xFFE5A534),
+      ),
+      _SubscriptionSummaryData(
+        title: 'Payment Failed',
+        value: '18',
+        change: '-2.6%',
+        icon: Icons.credit_card_off_outlined,
+        color: Color(0xFFE35D5D),
+      ),
+    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 920
+            ? 4
+            : constraints.maxWidth >= 560
+            ? 2
+            : 1;
+        const gap = 12.0;
+        final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (final summary in summaries)
+              SizedBox(
+                width: width,
+                child: _SubscriptionSummaryCard(summary: summary),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildFilters() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final search = TextField(
+          controller: _searchController,
+          onChanged: (value) => setState(() => _search = value),
+          decoration: const InputDecoration(
+            hintText: 'Search user...',
+            prefixIcon: Icon(Icons.search, size: 20),
+            isDense: true,
+          ),
+        );
+        final plan = _buildDropdown(
+          value: _selectedPlan,
+          options: const ['All plans', 'Pro', 'Basic'],
+          onChanged: (value) => setState(() => _selectedPlan = value),
+        );
+        final status = _buildDropdown(
+          value: _selectedStatus,
+          options: const [
+            'All statuses',
+            'Active',
+            'Expiring Soon',
+            'Cancelled',
+            'Payment Failed',
+          ],
+          onChanged: (value) => setState(() => _selectedStatus = value),
+        );
+        final exportButton = SizedBox(
+          height: 50,
+          child: OutlinedButton.icon(
+            onPressed: _showExportDemoMessage,
+            icon: const Icon(Icons.download_outlined, size: 17),
+            label: const Text('Export'),
+          ),
+        );
+        if (constraints.maxWidth < 740) {
+          return Column(
+            children: [
+              search,
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(child: plan),
+                  const SizedBox(width: 10),
+                  Expanded(child: status),
+                ],
+              ),
+              const SizedBox(height: 10),
+              SizedBox(width: double.infinity, child: exportButton),
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(flex: 5, child: search),
+            const SizedBox(width: 12),
+            Expanded(flex: 2, child: plan),
+            const SizedBox(width: 12),
+            Expanded(flex: 3, child: status),
+            const SizedBox(width: 12),
+            exportButton,
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDropdown({
+    required String value,
+    required List<String> options,
+    required ValueChanged<String> onChanged,
+  }) {
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: CommitmentAdminApp.border),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isExpanded: true,
+          borderRadius: BorderRadius.circular(12),
+          items: [
+            for (final option in options)
+              DropdownMenuItem(
+                value: option,
+                child: Text(
+                  option,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+          ],
+          onChanged: (selection) {
+            if (selection != null) onChanged(selection);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubscriptionTable() {
+    final subscriptions = _filteredSubscriptions;
+    return Container(
+      width: double.infinity,
+      decoration: cardDecoration(),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            const minimumTableWidth = 800.0;
+            final tableWidth = constraints.maxWidth < minimumTableWidth
+                ? minimumTableWidth
+                : constraints.maxWidth;
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: tableWidth,
+                child: Column(
+                  children: [
+                    const _SubscriptionTableRow(
+                      isHeader: true,
+                      user: 'User',
+                      plan: 'Plan',
+                      amount: 'Amount',
+                      nextCharge: 'Next Charge',
+                      date: 'Date',
+                      status: 'Status',
+                    ),
+                    if (subscriptions.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 28),
+                        child: Text(
+                          'No matching subscriptions found',
+                          style: TextStyle(
+                            color: CommitmentAdminApp.textGrey,
+                            fontSize: 13,
+                          ),
+                        ),
+                      )
+                    else
+                      for (final subscription in subscriptions)
+                        _SubscriptionTableRow(
+                          user: subscription.user,
+                          plan: subscription.plan,
+                          amount: subscription.amount,
+                          nextCharge: subscription.nextCharge,
+                          date: subscription.date,
+                          status: subscription.status,
+                        ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _SubscriptionSummaryData {
+  final String title;
+  final String value;
+  final String change;
+  final IconData icon;
+  final Color color;
+
+  const _SubscriptionSummaryData({
+    required this.title,
+    required this.value,
+    required this.change,
+    required this.icon,
+    required this.color,
+  });
+}
+
+class _SubscriptionSummaryCard extends StatelessWidget {
+  final _SubscriptionSummaryData summary;
+
+  const _SubscriptionSummaryCard({required this.summary});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 110,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: cardDecoration(radius: 16),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: summary.color.withAlpha(24),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(summary.icon, color: summary.color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  summary.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textGrey,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  summary.value,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textDark,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  summary.change,
+                  style: TextStyle(
+                    color: summary.change.startsWith('-')
+                        ? const Color(0xFFE35D5D)
+                        : const Color(0xFF26945A),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SubscriptionRecord {
+  final String user;
+  final String plan;
+  final String amount;
+  final String nextCharge;
+  final String date;
+  final String status;
+
+  const _SubscriptionRecord({
+    required this.user,
+    required this.plan,
+    required this.amount,
+    required this.nextCharge,
+    required this.date,
+    required this.status,
+  });
+}
+
+class _SubscriptionTableRow extends StatelessWidget {
+  final bool isHeader;
+  final String user;
+  final String plan;
+  final String amount;
+  final String nextCharge;
+  final String date;
+  final String status;
+
+  const _SubscriptionTableRow({
+    this.isHeader = false,
+    required this.user,
+    required this.plan,
+    required this.amount,
+    required this.nextCharge,
+    required this.date,
+    required this.status,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isHeader
+        ? CommitmentAdminApp.textGrey
+        : CommitmentAdminApp.textDark;
+    final weight = isHeader ? FontWeight.w700 : FontWeight.w500;
+    return Container(
+      constraints: const BoxConstraints(minHeight: 48),
+      decoration: BoxDecoration(
+        color: isHeader ? const Color(0xFFF4F8FB) : Colors.white,
+        border: const Border(bottom: BorderSide(color: Color(0xFFEAF0F5))),
+      ),
+      child: Row(
+        children: [
+          _subscriptionCell(3, user, color, weight),
+          _subscriptionCell(1, plan, color, weight),
+          _subscriptionCell(2, amount, color, weight),
+          _subscriptionCell(2, nextCharge, color, weight),
+          _subscriptionCell(2, date, color, weight),
+          Expanded(
+            flex: 3,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: isHeader
+                  ? Text(
+                      status,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 11,
+                        fontWeight: weight,
+                      ),
+                    )
+                  : Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _statusColor(status).withAlpha(22),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          status,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: _statusColor(status),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _subscriptionCell(
+    int flex,
+    String text,
+    Color color,
+    FontWeight weight,
+  ) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Text(
+          text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(color: color, fontSize: 11, fontWeight: weight),
+        ),
+      ),
+    );
+  }
+
+  Color _statusColor(String value) {
+    return switch (value) {
+      'Active' => const Color(0xFF2EAD67),
+      'Expiring Soon' => const Color(0xFFE5A534),
+      'Cancelled' => const Color(0xFF7D8995),
+      'Payment Failed' => const Color(0xFFE35D5D),
+      _ => CommitmentAdminApp.textGrey,
+    };
+  }
+}
+
+// ============================================================
+// SUPPORT PAGE
+// ============================================================
+
+class SupportPage extends StatefulWidget {
+  final VoidCallback onBack;
+  final Widget profile;
+
+  const SupportPage({super.key, required this.onBack, required this.profile});
+
+  @override
+  State<SupportPage> createState() => _SupportPageState();
+}
+
+class _SupportPageState extends State<SupportPage> {
+  final TextEditingController _searchController = TextEditingController();
+  String _search = '';
+  String _priority = 'All priorities';
+  String _status = 'All statuses';
+
+  static const List<_SupportTicket> _tickets = [
+    _SupportTicket(
+      id: '1024',
+      user: 'John',
+      issue: 'Login',
+      priority: 'High',
+      assigned: 'Admin 1',
+      status: 'Open',
+    ),
+    _SupportTicket(
+      id: '1023',
+      user: 'Sarah',
+      issue: 'Billing',
+      priority: 'Medium',
+      assigned: 'Admin 2',
+      status: 'In Progress',
+    ),
+    _SupportTicket(
+      id: '1022',
+      user: 'Alex',
+      issue: 'Account',
+      priority: 'Low',
+      assigned: 'Admin 1',
+      status: 'Resolved',
+    ),
+    _SupportTicket(
+      id: '1021',
+      user: 'Mike',
+      issue: 'Payment',
+      priority: 'Urgent',
+      assigned: 'Admin 3',
+      status: 'Open',
+    ),
+  ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<_SupportTicket> get _filteredTickets {
+    final query = _search.trim().toLowerCase();
+    return _tickets.where((ticket) {
+      final matchesQuery =
+          query.isEmpty ||
+          ticket.id.contains(query) ||
+          ticket.user.toLowerCase().contains(query) ||
+          ticket.issue.toLowerCase().contains(query);
+      final matchesPriority =
+          _priority == 'All priorities' || ticket.priority == _priority;
+      final matchesStatus =
+          _status == 'All statuses' || ticket.status == _status;
+      return matchesQuery && matchesPriority && matchesStatus;
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: _adminPagePadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Support',
+              subtitle: 'Customer support operations',
+              onBack: widget.onBack,
+              action: widget.profile,
+            ),
+            _buildSummaryCards(),
+            const SizedBox(height: 16),
+            _buildFilters(),
+            const SizedBox(height: 14),
+            _buildTicketTable(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryCards() {
+    const summaries = [
+      _SupportSummary(
+        'Open',
+        '42',
+        '+8.2%',
+        Color(0xFF2F80B7),
+        Icons.markunread_mailbox_outlined,
+      ),
+      _SupportSummary(
+        'New Today',
+        '18',
+        '+4.5%',
+        Color(0xFF7B61FF),
+        Icons.fiber_new_outlined,
+      ),
+      _SupportSummary(
+        'Waiting',
+        '126',
+        '+12.4%',
+        Color(0xFFE5A534),
+        Icons.hourglass_top_outlined,
+      ),
+      _SupportSummary(
+        'Resolved',
+        '6',
+        '-2.1%',
+        Color(0xFF2EAD67),
+        Icons.task_alt_outlined,
+      ),
+    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 920
+            ? 4
+            : constraints.maxWidth >= 560
+            ? 2
+            : 1;
+        const gap = 12.0;
+        final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (final summary in summaries)
+              SizedBox(
+                width: width,
+                child: _SupportSummaryCard(summary: summary),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildFilters() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final searchField = TextField(
+          controller: _searchController,
+          onChanged: (value) => setState(() => _search = value),
+          decoration: const InputDecoration(
+            hintText: 'Search tickets...',
+            prefixIcon: Icon(Icons.search, size: 20),
+            isDense: true,
+          ),
+        );
+        final priorityFilter = _buildDropdown(
+          value: _priority,
+          options: const ['All priorities', 'Urgent', 'High', 'Medium', 'Low'],
+          onChanged: (value) => setState(() => _priority = value),
+        );
+        final statusFilter = _buildDropdown(
+          value: _status,
+          options: const [
+            'All statuses',
+            'Open',
+            'In Progress',
+            'Resolved',
+            'Waiting',
+          ],
+          onChanged: (value) => setState(() => _status = value),
+        );
+        if (constraints.maxWidth < 650) {
+          return Column(
+            children: [
+              searchField,
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(child: priorityFilter),
+                  const SizedBox(width: 10),
+                  Expanded(child: statusFilter),
+                ],
+              ),
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(flex: 5, child: searchField),
+            const SizedBox(width: 12),
+            Expanded(flex: 2, child: priorityFilter),
+            const SizedBox(width: 12),
+            Expanded(flex: 2, child: statusFilter),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDropdown({
+    required String value,
+    required List<String> options,
+    required ValueChanged<String> onChanged,
+  }) {
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: CommitmentAdminApp.border),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isExpanded: true,
+          borderRadius: BorderRadius.circular(12),
+          items: [
+            for (final option in options)
+              DropdownMenuItem(
+                value: option,
+                child: Text(
+                  option,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+          ],
+          onChanged: (selected) {
+            if (selected != null) onChanged(selected);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTicketTable() {
+    final tickets = _filteredTickets;
+    return Container(
+      width: double.infinity,
+      decoration: cardDecoration(),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            const minTableWidth = 760.0;
+            final width = constraints.maxWidth < minTableWidth
+                ? minTableWidth
+                : constraints.maxWidth;
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: width,
+                child: Column(
+                  children: [
+                    const _SupportTicketRow(
+                      isHeader: true,
+                      id: 'Ticket',
+                      user: 'User',
+                      issue: 'Issue',
+                      priority: 'Priority',
+                      assigned: 'Assigned',
+                      status: 'Status',
+                    ),
+                    if (tickets.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 28),
+                        child: Text(
+                          'No matching support tickets',
+                          style: TextStyle(
+                            color: CommitmentAdminApp.textGrey,
+                            fontSize: 13,
+                          ),
+                        ),
+                      )
+                    else
+                      for (final ticket in tickets)
+                        _SupportTicketRow(
+                          id: '#${ticket.id}',
+                          user: ticket.user,
+                          issue: ticket.issue,
+                          priority: ticket.priority,
+                          assigned: ticket.assigned,
+                          status: ticket.status,
+                        ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _SupportSummary {
+  final String title;
+  final String value;
+  final String change;
+  final Color color;
+  final IconData icon;
+
+  const _SupportSummary(
+    this.title,
+    this.value,
+    this.change,
+    this.color,
+    this.icon,
+  );
+}
+
+class _SupportSummaryCard extends StatelessWidget {
+  final _SupportSummary summary;
+
+  const _SupportSummaryCard({required this.summary});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 110,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: cardDecoration(radius: 16),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: summary.color.withAlpha(24),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(summary.icon, color: summary.color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  summary.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textGrey,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  summary.value,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textDark,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  summary.change,
+                  style: TextStyle(
+                    color: summary.change.startsWith('-')
+                        ? const Color(0xFFE35D5D)
+                        : const Color(0xFF26945A),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SupportTicket {
+  final String id;
+  final String user;
+  final String issue;
+  final String priority;
+  final String assigned;
+  final String status;
+
+  const _SupportTicket({
+    required this.id,
+    required this.user,
+    required this.issue,
+    required this.priority,
+    required this.assigned,
+    required this.status,
+  });
+}
+
+class _SupportTicketRow extends StatelessWidget {
+  final bool isHeader;
+  final String id;
+  final String user;
+  final String issue;
+  final String priority;
+  final String assigned;
+  final String status;
+
+  const _SupportTicketRow({
+    this.isHeader = false,
+    required this.id,
+    required this.user,
+    required this.issue,
+    required this.priority,
+    required this.assigned,
+    required this.status,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final baseColor = isHeader
+        ? CommitmentAdminApp.textGrey
+        : CommitmentAdminApp.textDark;
+    final weight = isHeader ? FontWeight.w700 : FontWeight.w500;
+    return Container(
+      constraints: const BoxConstraints(minHeight: 48),
+      decoration: BoxDecoration(
+        color: isHeader ? const Color(0xFFF4F8FB) : Colors.white,
+        border: const Border(bottom: BorderSide(color: Color(0xFFEAF0F5))),
+      ),
+      child: Row(
+        children: [
+          _cell(2, id, baseColor, weight),
+          _cell(2, user, baseColor, weight),
+          _cell(3, issue, baseColor, weight),
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: isHeader
+                  ? Text(priority, style: _style(baseColor, weight))
+                  : _badge(priority, _priorityColor(priority)),
+            ),
+          ),
+          _cell(2, assigned, baseColor, weight),
+          Expanded(
+            flex: 3,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: isHeader
+                  ? Text(status, style: _style(baseColor, weight))
+                  : _badge(status, _statusColor(status)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _cell(int flex, String text, Color color, FontWeight weight) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Text(
+          text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: _style(color, weight),
+        ),
+      ),
+    );
+  }
+
+  TextStyle _style(Color color, FontWeight weight) {
+    return TextStyle(color: color, fontSize: 11, fontWeight: weight);
+  }
+
+  Widget _badge(String label, Color color) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+        decoration: BoxDecoration(
+          color: color.withAlpha(22),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: color,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _priorityColor(String value) {
+    return switch (value) {
+      'Urgent' => const Color(0xFFE35D5D),
+      'High' => const Color(0xFFE57836),
+      'Medium' => const Color(0xFFE5A534),
+      'Low' => const Color(0xFF2F80B7),
+      _ => CommitmentAdminApp.textGrey,
+    };
+  }
+
+  Color _statusColor(String value) {
+    return switch (value) {
+      'Open' => const Color(0xFF2F80B7),
+      'In Progress' => const Color(0xFFE5A534),
+      'Resolved' => const Color(0xFF2EAD67),
+      'Waiting' => const Color(0xFF7B61FF),
+      _ => CommitmentAdminApp.textGrey,
+    };
+  }
+}
+
+class ReportsPage extends StatelessWidget {
+  final VoidCallback onBack;
+  final Widget profile;
+
+  const ReportsPage({super.key, required this.onBack, required this.profile});
+
+  static const List<_ReportDefinition> _reports = [
+    _ReportDefinition(
+      title: 'User Activity',
+      description: 'Growth, Active Users,\nTrial Users',
+      icon: Icons.people_alt_outlined,
+      color: Color(0xFF2F80B7),
+    ),
+    _ReportDefinition(
+      title: 'Commitment Report',
+      description: 'Created, Completed,\nLate, Missed',
+      icon: Icons.assignment_outlined,
+      color: Color(0xFF7B61FF),
+    ),
+    _ReportDefinition(
+      title: 'Score Report',
+      description: 'Late, Missed,\nEnd Score',
+      icon: Icons.star_outline_rounded,
+      color: Color(0xFFE5A534),
+    ),
+    _ReportDefinition(
+      title: 'Revenue Report',
+      description: 'Subscriptions,\nRenewals, Revenue',
+      icon: Icons.account_balance_wallet_outlined,
+      color: Color(0xFF2EAD67),
+    ),
+    _ReportDefinition(
+      title: 'Notification Report',
+      description: 'Push/Email Delivery\nHealth',
+      icon: Icons.notifications_none_outlined,
+      color: Color(0xFFE35D5D),
+    ),
+    _ReportDefinition(
+      title: 'Travel Report',
+      description: 'Distance and\nTravel Time',
+      icon: Icons.map_outlined,
+      color: Color(0xFF4389C7),
+    ),
+  ];
+
+  void _showGeneratedMessage(BuildContext context, String reportName) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$reportName is ready to view (demo).')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: _adminPagePadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Reports',
+              subtitle: 'Generate operational and business reports',
+              onBack: onBack,
+              action: profile,
+            ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final columns = constraints.maxWidth >= 1050
+                    ? 3
+                    : constraints.maxWidth >= 650
+                    ? 2
+                    : 1;
+                const spacing = 16.0;
+                final width =
+                    (constraints.maxWidth - spacing * (columns - 1)) / columns;
+                return Wrap(
+                  spacing: spacing,
+                  runSpacing: spacing,
+                  children: [
+                    for (final report in _reports)
+                      SizedBox(
+                        width: width,
+                        child: _ReportCard(
+                          report: report,
+                          onGenerate: () =>
+                              _showGeneratedMessage(context, report.title),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReportDefinition {
+  final String title;
+  final String description;
+  final IconData icon;
+  final Color color;
+
+  const _ReportDefinition({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.color,
+  });
+}
+
+class _ReportCard extends StatelessWidget {
+  final _ReportDefinition report;
+  final VoidCallback onGenerate;
+
+  const _ReportCard({required this.report, required this.onGenerate});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 242,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
+      decoration: cardDecoration(radius: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: report.color.withAlpha(22),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Icon(report.icon, color: report.color, size: 25),
+          ),
+          const SizedBox(height: 13),
+          Text(
+            report.title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: CommitmentAdminApp.textDark,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Center(
+              child: Text(
+                report.description,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: CommitmentAdminApp.textGrey,
+                  fontSize: 12,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: onGenerate,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: report.color,
+                side: BorderSide(color: report.color.withAlpha(100)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 12,
+                ),
+              ),
+              child: const Text(
+                'View & Generate Report',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class PlaceholderPage extends StatelessWidget {
   final String title;
