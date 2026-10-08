@@ -482,31 +482,34 @@ class _BrandLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: CommitmentAdminApp.primary,
-            borderRadius: BorderRadius.circular(13),
+    return Center(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: CommitmentAdminApp.primary,
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: const Icon(
+              Icons.check_circle_outline,
+              color: Colors.white,
+              size: 31,
+            ),
           ),
-          child: const Icon(
-            Icons.check_circle_outline,
-            color: Colors.white,
-            size: 31,
+          const SizedBox(width: 14),
+          const Text(
+            'Commitment App',
+            style: TextStyle(
+              color: Color(0xFF18232E),
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-        ),
-        const SizedBox(width: 14),
-        const Text(
-          'Commitment App',
-          style: TextStyle(
-            color: Color(0xFF18232E),
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -837,6 +840,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       case 'Reports':
         return ReportsPage(onBack: goBack, profile: profile);
 
+      case 'Configuration':
+        return ConfigurationPage(onBack: goBack, profile: profile);
+
+      case 'Admin Management':
+        return AdminManagementPage(onBack: goBack, profile: profile);
+
+      case 'Audit Logs':
+        return AuditLogsPage(onBack: goBack, profile: profile);
+
+      case 'Security':
+        return SecurityPage(onBack: goBack, profile: profile);
+
+      case 'System Health':
+        return SystemHealthPage(onBack: goBack, profile: profile);
+
       default:
         return PlaceholderPage(
           title: selectedItem,
@@ -878,7 +896,7 @@ class AdminSidebar extends StatelessWidget {
     ['Admin Management', Icons.admin_panel_settings_outlined],
     ['Audit Logs', Icons.history_outlined],
     ['Security', Icons.security_outlined],
-    ['System Update', Icons.system_update_outlined],
+    ['System Health', Icons.system_update_outlined],
   ];
 
   @override
@@ -5500,23 +5518,15 @@ class _LocationSummaryCard extends StatelessWidget {
   }
 }
 
-class _LocationSummaryTile extends StatefulWidget {
+class _LocationSummaryTile extends StatelessWidget {
   final _LocationSummary summary;
 
   const _LocationSummaryTile({required this.summary});
 
   @override
-  State<_LocationSummaryTile> createState() => _LocationSummaryTileState();
-}
-
-class _LocationSummaryTileState extends State<_LocationSummaryTile> {
-  String _period = 'Today';
-
-  @override
   Widget build(BuildContext context) {
-    final summary = widget.summary;
     return Container(
-      height: 118,
+      height: 88,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: dashCardDecoration(),
       child: Row(
@@ -5557,7 +5567,6 @@ class _LocationSummaryTileState extends State<_LocationSummaryTile> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 2),
                 FittedBox(
                   alignment: Alignment.centerLeft,
                   fit: BoxFit.scaleDown,
@@ -5567,36 +5576,6 @@ class _LocationSummaryTileState extends State<_LocationSummaryTile> {
                       color: _dashTitle,
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 26,
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _period,
-                      isDense: true,
-                      iconSize: 15,
-                      style: const TextStyle(
-                        color: CommitmentAdminApp.textGrey,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      items: const [
-                        DropdownMenuItem(value: 'Today', child: Text('Today')),
-                        DropdownMenuItem(
-                          value: 'This week',
-                          child: Text('This week'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'This month',
-                          child: Text('This month'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) setState(() => _period = value);
-                      },
                     ),
                   ),
                 ),
@@ -5765,11 +5744,7 @@ class _FollowUpsPageState extends State<FollowUpsPage> {
             for (final stat in stats)
               SizedBox(
                 width: tileWidth,
-                child: _FollowUpStatTile(
-                  stat: stat,
-                  selected: _selectedFilter == stat.title,
-                  onTap: () => setState(() => _selectedFilter = stat.title),
-                ),
+                child: _FollowUpStatTile(stat: stat),
               ),
           ],
         );
@@ -5869,95 +5844,79 @@ class _FollowUpStat {
 
 class _FollowUpStatTile extends StatelessWidget {
   final _FollowUpStat stat;
-  final bool selected;
-  final VoidCallback onTap;
 
-  const _FollowUpStatTile({
-    required this.stat,
-    required this.selected,
-    required this.onTap,
-  });
+  const _FollowUpStatTile({required this.stat});
 
   @override
   Widget build(BuildContext context) {
     return Tilt3D(
       maxTilt: 0.045,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
+      child: Container(
+        height: 76,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          child: Container(
-            height: 76,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: selected ? stat.color : const Color(0xFFE4EDF4),
-                width: selected ? 1.5 : 1,
+          border: Border.all(color: const Color(0xFFE4EDF4)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x101E5A8C),
+              blurRadius: 14,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [stat.color, stat.color.withAlpha(175)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(11),
+                boxShadow: [
+                  BoxShadow(
+                    color: stat.color.withAlpha(55),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x101E5A8C),
-                  blurRadius: 14,
-                  offset: Offset(0, 5),
-                ),
-              ],
+              child: Icon(stat.icon, color: Colors.white, size: 18),
             ),
-            child: Row(
-              children: [
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [stat.color, stat.color.withAlpha(175)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    stat.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textGrey,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                     ),
-                    borderRadius: BorderRadius.circular(11),
-                    boxShadow: [
-                      BoxShadow(
-                        color: stat.color.withAlpha(55),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
                   ),
-                  child: Icon(stat.icon, color: Colors.white, size: 18),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        stat.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: CommitmentAdminApp.textGrey,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        stat.value,
-                        style: const TextStyle(
-                          color: _dashTitle,
-                          fontSize: 19,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 2),
+                  Text(
+                    stat.value,
+                    style: const TextStyle(
+                      color: _dashTitle,
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -6248,25 +6207,17 @@ class _DeliveryMetric {
   });
 }
 
-class _DeliveryHealthMetric extends StatefulWidget {
+class _DeliveryHealthMetric extends StatelessWidget {
   final _DeliveryMetric metric;
 
   const _DeliveryHealthMetric({required this.metric});
 
   @override
-  State<_DeliveryHealthMetric> createState() => _DeliveryHealthMetricState();
-}
-
-class _DeliveryHealthMetricState extends State<_DeliveryHealthMetric> {
-  String _period = 'Last 24h';
-
-  @override
   Widget build(BuildContext context) {
-    final metric = widget.metric;
     return Tilt3D(
       maxTilt: 0.045,
       child: Container(
-        height: 112,
+        height: 76,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: dashCardDecoration(),
         child: Row(
@@ -6321,40 +6272,7 @@ class _DeliveryHealthMetricState extends State<_DeliveryHealthMetric> {
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 25,
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _period,
-                        isDense: true,
-                        iconSize: 15,
-                        style: const TextStyle(
-                          color: CommitmentAdminApp.textGrey,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'Last 24h',
-                            child: Text('Last 24h'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Last 7d',
-                            child: Text('Last 7d'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Last 30d',
-                            child: Text('Last 30d'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) setState(() => _period = value);
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 8),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: LinearProgressIndicator(
@@ -8370,6 +8288,2472 @@ class _ReportCard extends StatelessWidget {
   }
 }
 
+class SystemHealthPage extends StatefulWidget {
+  final VoidCallback onBack;
+  final Widget profile;
+
+  const SystemHealthPage({
+    super.key,
+    required this.onBack,
+    required this.profile,
+  });
+
+  @override
+  State<SystemHealthPage> createState() => _SystemHealthPageState();
+}
+
+class _SystemHealthPageState extends State<SystemHealthPage> {
+  static const _services = [
+    _HealthService(
+      name: 'Backend API',
+      value: '182 ms',
+      status: 'Operational',
+      tone: _HealthTone.good,
+    ),
+    _HealthService(
+      name: 'Database',
+      value: '42 ms',
+      status: 'Operational',
+      tone: _HealthTone.good,
+    ),
+    _HealthService(
+      name: 'Email Service',
+      value: '—',
+      status: 'Operational',
+      tone: _HealthTone.good,
+    ),
+    _HealthService(
+      name: 'Push Notification',
+      value: '—',
+      status: 'Operational',
+      tone: _HealthTone.good,
+    ),
+    _HealthService(
+      name: 'Maps API',
+      value: '214 ms',
+      status: 'Operational',
+      tone: _HealthTone.good,
+    ),
+    _HealthService(
+      name: 'File Storage',
+      value: '—',
+      status: 'Operational',
+      tone: _HealthTone.good,
+    ),
+    _HealthService(
+      name: 'Payment Gateway',
+      value: '—',
+      status: 'Operational',
+      tone: _HealthTone.good,
+    ),
+    _HealthService(
+      name: 'Scheduler',
+      value: '3 jobs',
+      status: 'Warning',
+      tone: _HealthTone.warning,
+    ),
+  ];
+
+  static const _metrics = [
+    _HealthMetric(
+      title: 'API Response',
+      value: '182 ms',
+      caption: 'Average',
+      icon: Icons.speed_outlined,
+      color: Color(0xFF2F80B7),
+    ),
+    _HealthMetric(
+      title: 'Error Rate',
+      value: '0.21%',
+      caption: 'Last hour',
+      icon: Icons.error_outline,
+      color: Color(0xFF2EAD67),
+    ),
+    _HealthMetric(
+      title: 'Failed Jobs',
+      value: '3',
+      caption: 'Scheduler',
+      icon: Icons.work_outline,
+      color: Color(0xFFE5A534),
+    ),
+    _HealthMetric(
+      title: 'DB Connections',
+      value: '42',
+      caption: 'Active',
+      icon: Icons.storage_outlined,
+      color: Color(0xFF7B61FF),
+    ),
+  ];
+
+  DateTime _lastChecked = DateTime.now();
+  bool _refreshing = false;
+
+  Future<void> _refresh() async {
+    if (_refreshing) {
+      return;
+    }
+    setState(() => _refreshing = true);
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _lastChecked = DateTime.now();
+      _refreshing = false;
+    });
+  }
+
+  String get _checkedLabel {
+    final elapsed = DateTime.now().difference(_lastChecked);
+    if (elapsed.inSeconds < 5) {
+      return 'Last checked a few seconds ago';
+    }
+    if (elapsed.inMinutes < 1) {
+      return 'Last checked ${elapsed.inSeconds} seconds ago';
+    }
+    if (elapsed.inHours < 1) {
+      return 'Last checked ${elapsed.inMinutes} minutes ago';
+    }
+    return 'Last checked ${elapsed.inHours} hours ago';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: _adminPagePadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'System Health',
+              subtitle: 'Technical service health',
+              onBack: widget.onBack,
+              action: widget.profile,
+            ),
+            _buildOverallStatus(),
+            const SizedBox(height: 16),
+            _buildServicesTable(),
+            const SizedBox(height: 16),
+            _buildMetrics(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOverallStatus() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      decoration: cardDecoration(),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle, color: Color(0xFF2EAD67), size: 23),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'All critical systems operational',
+                  style: TextStyle(
+                    color: CommitmentAdminApp.textDark,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _checkedLabel,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textGrey,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          OutlinedButton.icon(
+            onPressed: _refreshing ? null : _refresh,
+            icon: _refreshing
+                ? const SizedBox(
+                    width: 15,
+                    height: 15,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh, size: 17),
+            label: Text(_refreshing ? 'Checking' : 'Refresh'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildServicesTable() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+      decoration: cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Services',
+            style: TextStyle(
+              color: CommitmentAdminApp.textDark,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Live system status',
+            style: TextStyle(color: CommitmentAdminApp.textGrey, fontSize: 12),
+          ),
+          const SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const minWidth = 700.0;
+              final tableWidth = constraints.maxWidth < minWidth
+                  ? minWidth
+                  : constraints.maxWidth;
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: tableWidth,
+                  child: Column(
+                    children: [
+                      const _HealthServiceRow(
+                        header: true,
+                        name: 'Service',
+                        value: 'Response / Value',
+                        status: 'Status',
+                        tone: _HealthTone.good,
+                      ),
+                      for (final service in _services)
+                        _HealthServiceRow(
+                          name: service.name,
+                          value: service.value,
+                          status: service.status,
+                          tone: service.tone,
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetrics() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 1000
+            ? 4
+            : constraints.maxWidth >= 560
+            ? 2
+            : 1;
+        const spacing = 12.0;
+        final cardWidth =
+            (constraints.maxWidth - spacing * (columns - 1)) / columns;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final metric in _metrics)
+              SizedBox(
+                width: cardWidth,
+                child: _HealthMetricCard(metric: metric),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+enum _HealthTone { good, warning }
+
+class _HealthService {
+  final String name;
+  final String value;
+  final String status;
+  final _HealthTone tone;
+
+  const _HealthService({
+    required this.name,
+    required this.value,
+    required this.status,
+    required this.tone,
+  });
+}
+
+class _HealthServiceRow extends StatelessWidget {
+  final bool header;
+  final String name;
+  final String value;
+  final String status;
+  final _HealthTone tone;
+
+  const _HealthServiceRow({
+    this.header = false,
+    required this.name,
+    required this.value,
+    required this.status,
+    required this.tone,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final statusColor = tone == _HealthTone.good
+        ? const Color(0xFF248A55)
+        : const Color(0xFFB07812);
+    final textStyle = TextStyle(
+      color: header ? const Color(0xFF34404B) : CommitmentAdminApp.textDark,
+      fontSize: 12,
+      fontWeight: header ? FontWeight.w700 : FontWeight.w500,
+    );
+
+    return Container(
+      constraints: const BoxConstraints(minHeight: 42),
+      decoration: BoxDecoration(
+        color: header ? const Color(0xFFF2F8FC) : Colors.white,
+        border: const Border(top: BorderSide(color: CommitmentAdminApp.border)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                children: [
+                  if (!header) ...[
+                    Icon(
+                      tone == _HealthTone.good
+                          ? Icons.check_circle
+                          : Icons.warning_amber_rounded,
+                      size: 15,
+                      color: statusColor,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
+                    child: Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textStyle,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: textStyle,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Text(
+                status,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: header ? const Color(0xFF34404B) : statusColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HealthMetric {
+  final String title;
+  final String value;
+  final String caption;
+  final IconData icon;
+  final Color color;
+
+  const _HealthMetric({
+    required this.title,
+    required this.value,
+    required this.caption,
+    required this.icon,
+    required this.color,
+  });
+}
+
+class _HealthMetricCard extends StatelessWidget {
+  final _HealthMetric metric;
+
+  const _HealthMetricCard({required this.metric});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 124,
+      padding: const EdgeInsets.all(15),
+      decoration: cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(metric.icon, size: 17, color: metric.color),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  metric.title.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textGrey,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            metric.value,
+            style: TextStyle(
+              color: metric.color,
+              fontSize: 24,
+              height: 1,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            metric.caption,
+            style: const TextStyle(
+              color: CommitmentAdminApp.textGrey,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SecurityPage extends StatelessWidget {
+  final VoidCallback onBack;
+  final Widget profile;
+
+  const SecurityPage({super.key, required this.onBack, required this.profile});
+
+  static const _metrics = [
+    _SecurityMetric(
+      title: 'Failed Logins',
+      value: '12',
+      caption: 'Last 24 hrs',
+      icon: Icons.lock_outline,
+      color: Color(0xFFE35D5D),
+    ),
+    _SecurityMetric(
+      title: 'Active Sessions',
+      value: '8',
+      caption: 'Current',
+      icon: Icons.devices_outlined,
+      color: Color(0xFF2F80B7),
+    ),
+    _SecurityMetric(
+      title: 'Admin Users',
+      value: '5',
+      caption: 'Enabled',
+      icon: Icons.admin_panel_settings_outlined,
+      color: Color(0xFF2EAD67),
+    ),
+    _SecurityMetric(
+      title: 'Suspicious',
+      value: '1',
+      caption: 'Needs review',
+      icon: Icons.warning_amber_rounded,
+      color: Color(0xFFE5A534),
+    ),
+  ];
+
+  static const _events = [
+    _SecurityEvent(
+      time: '09:40 AM',
+      source: 'Admin01',
+      device: 'Chrome / Windows',
+      ip: '10.24.xxx.xxx',
+      status: 'Success',
+    ),
+    _SecurityEvent(
+      time: '09:22 AM',
+      source: 'Admin02',
+      device: 'Chrome / macOS',
+      ip: '10.25.xxx.xxx',
+      status: 'Success',
+    ),
+    _SecurityEvent(
+      time: '08:51 AM',
+      source: 'Unknown',
+      device: 'Chrome / Windows',
+      ip: '185.xxx.xxx.xxx',
+      status: 'Failed',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: _adminPagePadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Security',
+              subtitle: 'Admin access and security monitoring',
+              onBack: onBack,
+              action: profile,
+            ),
+            _buildMetrics(),
+            const SizedBox(height: 18),
+            _buildEventsTable(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetrics() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 1000
+            ? 4
+            : constraints.maxWidth >= 560
+            ? 2
+            : 1;
+        const spacing = 12.0;
+        final cardWidth =
+            (constraints.maxWidth - spacing * (columns - 1)) / columns;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final metric in _metrics)
+              SizedBox(
+                width: cardWidth,
+                child: _SecurityMetricCard(metric: metric),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildEventsTable() {
+    return Container(
+      width: double.infinity,
+      decoration: cardDecoration(),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            const minWidth = 820.0;
+            final tableWidth = constraints.maxWidth < minWidth
+                ? minWidth
+                : constraints.maxWidth;
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: tableWidth,
+                child: Column(
+                  children: [
+                    const _SecurityEventRow(
+                      header: true,
+                      time: 'Time',
+                      source: 'Admin / Source',
+                      device: 'Device',
+                      ip: 'IP',
+                      status: 'Status',
+                    ),
+                    for (final event in _events)
+                      _SecurityEventRow(
+                        time: event.time,
+                        source: event.source,
+                        device: event.device,
+                        ip: event.ip,
+                        status: event.status,
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _SecurityMetric {
+  final String title;
+  final String value;
+  final String caption;
+  final IconData icon;
+  final Color color;
+
+  const _SecurityMetric({
+    required this.title,
+    required this.value,
+    required this.caption,
+    required this.icon,
+    required this.color,
+  });
+}
+
+class _SecurityMetricCard extends StatelessWidget {
+  final _SecurityMetric metric;
+
+  const _SecurityMetricCard({required this.metric});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 144,
+      padding: const EdgeInsets.all(16),
+      decoration: cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(metric.icon, color: metric.color, size: 19),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  metric.title.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: CommitmentAdminApp.textGrey,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            metric.value,
+            style: TextStyle(
+              color: metric.color,
+              fontSize: 30,
+              height: 1,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            metric.caption,
+            style: const TextStyle(
+              color: CommitmentAdminApp.textGrey,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SecurityEvent {
+  final String time;
+  final String source;
+  final String device;
+  final String ip;
+  final String status;
+
+  const _SecurityEvent({
+    required this.time,
+    required this.source,
+    required this.device,
+    required this.ip,
+    required this.status,
+  });
+}
+
+class _SecurityEventRow extends StatelessWidget {
+  final bool header;
+  final String time;
+  final String source;
+  final String device;
+  final String ip;
+  final String status;
+
+  const _SecurityEventRow({
+    this.header = false,
+    required this.time,
+    required this.source,
+    required this.device,
+    required this.ip,
+    required this.status,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = TextStyle(
+      color: header ? const Color(0xFF34404B) : CommitmentAdminApp.textDark,
+      fontSize: 12,
+      fontWeight: header ? FontWeight.w700 : FontWeight.w500,
+    );
+
+    Widget cell(String value, {int flex = 2}) => Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        child: Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: textStyle,
+        ),
+      ),
+    );
+
+    final successful = status == 'Success';
+    return Container(
+      constraints: const BoxConstraints(minHeight: 50),
+      decoration: BoxDecoration(
+        color: header ? const Color(0xFFE3F3FF) : Colors.white,
+        border: header
+            ? null
+            : const Border(top: BorderSide(color: CommitmentAdminApp.border)),
+      ),
+      child: Row(
+        children: [
+          cell(time, flex: 2),
+          cell(source, flex: 2),
+          cell(device, flex: 3),
+          cell(ip, flex: 2),
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: header
+                  ? Text(status, style: textStyle)
+                  : Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: successful
+                              ? const Color(0xFFE8F6EE)
+                              : const Color(0xFFFCEBEC),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          status,
+                          style: TextStyle(
+                            color: successful
+                                ? const Color(0xFF248A55)
+                                : const Color(0xFFC74343),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AuditLogsPage extends StatefulWidget {
+  final VoidCallback onBack;
+  final Widget profile;
+
+  const AuditLogsPage({super.key, required this.onBack, required this.profile});
+
+  @override
+  State<AuditLogsPage> createState() => _AuditLogsPageState();
+}
+
+class _AuditLogsPageState extends State<AuditLogsPage> {
+  static const _admins = ['All Admins', 'Admin01', 'Admin02'];
+  static const _modules = [
+    'All Modules',
+    'Users',
+    'Files',
+    'Billing',
+    'Configuration',
+  ];
+  static const _actions = [
+    'All Actions',
+    'Status changed',
+    'Viewed attachment',
+    'Cancelled plan',
+    'Updated config',
+  ];
+  static const _dateRanges = [
+    'All dates',
+    'Today',
+    'Last 7 days',
+    'Last 30 days',
+  ];
+  static const _entries = [
+    _AuditLogEntry(
+      time: '09:42',
+      admin: 'Admin01',
+      action: 'Status changed',
+      module: 'Users',
+      record: '#10291',
+      result: 'Active → Suspended',
+      searchableDetails: 'User status changed from active to suspended',
+      ageDays: 0,
+    ),
+    _AuditLogEntry(
+      time: '09:31',
+      admin: 'Admin02',
+      action: 'Viewed attachment',
+      module: 'Files',
+      record: '#882',
+      result: 'Access logged',
+      searchableDetails: 'Attachment viewed and access logged',
+      ageDays: 0,
+    ),
+    _AuditLogEntry(
+      time: '09:12',
+      admin: 'Admin01',
+      action: 'Cancelled plan',
+      module: 'Billing',
+      record: '#992',
+      result: 'Cancelled',
+      searchableDetails: 'Subscription plan cancelled',
+      ageDays: 1,
+    ),
+    _AuditLogEntry(
+      time: '08:54',
+      admin: 'Admin01',
+      action: 'Updated config',
+      module: 'Configuration',
+      record: 'Trial limit',
+      result: '10 → 12',
+      searchableDetails: 'Trial commitment limit updated from 10 to 12',
+      ageDays: 1,
+    ),
+  ];
+
+  final _searchController = TextEditingController();
+  String _query = '';
+  String _selectedAdmin = _admins.first;
+  String _selectedModule = _modules.first;
+  String _selectedAction = _actions.first;
+  String _selectedDateRange = _dateRanges.first;
+
+  List<_AuditLogEntry> get _filteredEntries {
+    final query = _query.trim().toLowerCase();
+    return _entries.where((entry) {
+      final matchesQuery =
+          query.isEmpty ||
+          [
+            entry.time,
+            entry.admin,
+            entry.action,
+            entry.module,
+            entry.record,
+            entry.result,
+            entry.searchableDetails,
+          ].any((value) => value.toLowerCase().contains(query));
+      final matchesAdmin =
+          _selectedAdmin == _admins.first || entry.admin == _selectedAdmin;
+      final matchesModule =
+          _selectedModule == _modules.first || entry.module == _selectedModule;
+      final matchesAction =
+          _selectedAction == _actions.first || entry.action == _selectedAction;
+      final matchesDate = switch (_selectedDateRange) {
+        'Today' => entry.ageDays == 0,
+        'Last 7 days' => entry.ageDays <= 7,
+        'Last 30 days' => entry.ageDays <= 30,
+        _ => true,
+      };
+      return matchesQuery &&
+          matchesAdmin &&
+          matchesModule &&
+          matchesAction &&
+          matchesDate;
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: _adminPagePadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Audit Logs',
+              subtitle: 'Administrative activity history',
+              onBack: widget.onBack,
+              action: widget.profile,
+            ),
+            _buildFilters(),
+            const SizedBox(height: 16),
+            _buildTable(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilters() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final narrow = constraints.maxWidth < 760;
+        final search = SizedBox(
+          width: narrow ? constraints.maxWidth : 310,
+          child: TextField(
+            controller: _searchController,
+            onChanged: (value) => setState(() => _query = value),
+            decoration: const InputDecoration(
+              hintText: 'Search audit log...',
+              prefixIcon: Icon(Icons.search),
+              isDense: true,
+            ),
+          ),
+        );
+
+        Widget filter(
+          String value,
+          List<String> options,
+          ValueChanged<String> onChanged,
+        ) {
+          return SizedBox(
+            width: narrow ? constraints.maxWidth : 145,
+            child: DropdownButtonFormField<String>(
+              initialValue: value,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 13,
+                ),
+              ),
+              items: [
+                for (final option in options)
+                  DropdownMenuItem(value: option, child: Text(option)),
+              ],
+              onChanged: (selected) {
+                if (selected != null) onChanged(selected);
+              },
+            ),
+          );
+        }
+
+        final filters = [
+          filter(
+            _selectedAdmin,
+            _admins,
+            (value) => setState(() => _selectedAdmin = value),
+          ),
+          filter(
+            _selectedModule,
+            _modules,
+            (value) => setState(() => _selectedModule = value),
+          ),
+          filter(
+            _selectedAction,
+            _actions,
+            (value) => setState(() => _selectedAction = value),
+          ),
+          filter(
+            _selectedDateRange,
+            _dateRanges,
+            (value) => setState(() => _selectedDateRange = value),
+          ),
+        ];
+
+        if (narrow) {
+          return Column(
+            children: [
+              search,
+              const SizedBox(height: 10),
+              Wrap(spacing: 10, runSpacing: 10, children: filters),
+            ],
+          );
+        }
+
+        return Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [search, ...filters],
+        );
+      },
+    );
+  }
+
+  Widget _buildTable() {
+    return Container(
+      width: double.infinity,
+      decoration: cardDecoration(),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            const minWidth = 900.0;
+            final tableWidth = constraints.maxWidth < minWidth
+                ? minWidth
+                : constraints.maxWidth;
+            final entries = _filteredEntries;
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: tableWidth,
+                child: Column(
+                  children: [
+                    const _AuditLogRow(
+                      header: true,
+                      time: 'Time',
+                      admin: 'Admin',
+                      action: 'Action',
+                      module: 'Module',
+                      record: 'Record',
+                      result: 'Result',
+                    ),
+                    if (entries.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Text('No audit records match these filters.'),
+                      )
+                    else
+                      for (final entry in entries)
+                        _AuditLogRow(
+                          time: entry.time,
+                          admin: entry.admin,
+                          action: entry.action,
+                          module: entry.module,
+                          record: entry.record,
+                          result: entry.result,
+                        ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _AuditLogEntry {
+  final String time;
+  final String admin;
+  final String action;
+  final String module;
+  final String record;
+  final String result;
+  final String searchableDetails;
+  final int ageDays;
+
+  const _AuditLogEntry({
+    required this.time,
+    required this.admin,
+    required this.action,
+    required this.module,
+    required this.record,
+    required this.result,
+    required this.searchableDetails,
+    required this.ageDays,
+  });
+}
+
+class _AuditLogRow extends StatelessWidget {
+  final bool header;
+  final String time;
+  final String admin;
+  final String action;
+  final String module;
+  final String record;
+  final String result;
+
+  const _AuditLogRow({
+    this.header = false,
+    required this.time,
+    required this.admin,
+    required this.action,
+    required this.module,
+    required this.record,
+    required this.result,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final style = TextStyle(
+      color: header ? const Color(0xFF34404B) : CommitmentAdminApp.textDark,
+      fontSize: 12,
+      fontWeight: header ? FontWeight.w700 : FontWeight.w500,
+    );
+
+    Widget cell(String value, {int flex = 2}) => Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+        child: Text(
+          value,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: style,
+        ),
+      ),
+    );
+
+    return Container(
+      constraints: const BoxConstraints(minHeight: 48),
+      decoration: BoxDecoration(
+        color: header ? const Color(0xFFE3F3FF) : Colors.white,
+        border: header
+            ? null
+            : const Border(top: BorderSide(color: CommitmentAdminApp.border)),
+      ),
+      child: Row(
+        children: [
+          cell(time, flex: 1),
+          cell(admin, flex: 2),
+          cell(action, flex: 3),
+          cell(module, flex: 2),
+          cell(record, flex: 2),
+          cell(result, flex: 3),
+        ],
+      ),
+    );
+  }
+}
+
+class AdminManagementPage extends StatefulWidget {
+  final VoidCallback onBack;
+  final Widget profile;
+
+  const AdminManagementPage({
+    super.key,
+    required this.onBack,
+    required this.profile,
+  });
+
+  @override
+  State<AdminManagementPage> createState() => _AdminManagementPageState();
+}
+
+class _AdminManagementPageState extends State<AdminManagementPage> {
+  static const _storageKey = 'adminManagement.records';
+  static const _roles = ['Super Admin', 'Support', 'Finance'];
+  static const _demoAdmins = [
+    _ManagedAdmin(
+      id: 'demo-1',
+      name: 'Admin 1',
+      email: 'admin1@example.com',
+      role: 'Super Admin',
+      lastLogin: 'Today',
+    ),
+    _ManagedAdmin(
+      id: 'demo-2',
+      name: 'Admin 2',
+      email: 'admin2@example.com',
+      role: 'Support',
+      lastLogin: 'Today',
+    ),
+    _ManagedAdmin(
+      id: 'demo-3',
+      name: 'Admin 3',
+      email: 'admin3@example.com',
+      role: 'Finance',
+      lastLogin: 'Yesterday',
+    ),
+  ];
+
+  final _searchController = TextEditingController();
+  List<_ManagedAdmin> _admins = _demoAdmins;
+  String _query = '';
+  bool _loading = true;
+  String? _loadError;
+
+  List<_ManagedAdmin> get _visibleAdmins {
+    final query = _query.trim().toLowerCase();
+    if (query.isEmpty) return _admins;
+    return _admins
+        .where(
+          (admin) =>
+              admin.name.toLowerCase().contains(query) ||
+              admin.email.toLowerCase().contains(query) ||
+              admin.role.toLowerCase().contains(query),
+        )
+        .toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAdmins();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadAdmins() async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      final stored = preferences.getString(_storageKey);
+      if (stored != null) {
+        final decoded = jsonDecode(stored);
+        if (decoded is! List) {
+          throw const FormatException('Admin records must be a list.');
+        }
+        final admins = decoded
+            .map((record) {
+              if (record is! Map<String, dynamic>) {
+                throw const FormatException('An admin record is invalid.');
+              }
+              return _ManagedAdmin.fromJson(record);
+            })
+            .toList(growable: true);
+        if (mounted) setState(() => _admins = admins);
+      }
+    } on FormatException catch (error) {
+      if (mounted) setState(() => _loadError = error.message);
+    } catch (error) {
+      if (mounted) setState(() => _loadError = 'Could not load admins: $error');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _persistAdmins() async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      final saved = await preferences.setString(
+        _storageKey,
+        jsonEncode(_admins.map((admin) => admin.toJson()).toList()),
+      );
+      if (!saved) throw StateError('Admin records were not saved.');
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not save admin records: $error')),
+      );
+    }
+  }
+
+  Future<void> _addAdmin() async {
+    final admin = await showDialog<_ManagedAdmin>(
+      context: context,
+      builder: (_) => const _ManagedAdminEditor(roles: _roles),
+    );
+    if (admin == null || !mounted) return;
+    setState(() => _admins = [..._admins, admin]);
+    await _persistAdmins();
+  }
+
+  Future<void> _editAdmin(_ManagedAdmin existing) async {
+    final updated = await showDialog<_ManagedAdmin>(
+      context: context,
+      builder: (_) =>
+          _ManagedAdminEditor(roles: _roles, initialAdmin: existing),
+    );
+    if (updated == null || !mounted) return;
+    setState(() {
+      _admins = [
+        for (final admin in _admins)
+          if (admin.id == existing.id) updated else admin,
+      ];
+    });
+    await _persistAdmins();
+  }
+
+  Future<void> _toggleAdmin(_ManagedAdmin admin) async {
+    setState(() {
+      _admins = [
+        for (final current in _admins)
+          if (current.id == admin.id)
+            current.copyWith(active: !current.active)
+          else
+            current,
+      ];
+    });
+    await _persistAdmins();
+  }
+
+  Future<void> _removeAdmin(_ManagedAdmin admin) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Remove administrator?'),
+        content: Text('Remove ${admin.name} from this device’s admin list?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(
+      () =>
+          _admins = _admins.where((current) => current.id != admin.id).toList(),
+    );
+    await _persistAdmins();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: _adminPagePadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Admin Management',
+              subtitle: 'Roles and permissions',
+              onBack: widget.onBack,
+              action: widget.profile,
+            ),
+            _buildToolbar(),
+            const SizedBox(height: 14),
+            _buildAdminTable(),
+            const SizedBox(height: 18),
+            _buildPermissionsTable(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildToolbar() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final search = SizedBox(
+          width: constraints.maxWidth < 560 ? double.infinity : 380,
+          child: TextField(
+            controller: _searchController,
+            onChanged: (value) => setState(() => _query = value),
+            decoration: const InputDecoration(
+              hintText: 'Search admin...',
+              prefixIcon: Icon(Icons.search),
+              isDense: true,
+            ),
+          ),
+        );
+        final addButton = FilledButton.icon(
+          onPressed: _addAdmin,
+          icon: const Icon(Icons.add),
+          label: const Text('Add Admin'),
+        );
+
+        if (constraints.maxWidth < 560) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [search, const SizedBox(height: 10), addButton],
+          );
+        }
+        return Row(children: [search, const Spacer(), addButton]);
+      },
+    );
+  }
+
+  Widget _buildAdminTable() {
+    return Container(
+      width: double.infinity,
+      decoration: cardDecoration(),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            const minWidth = 850.0;
+            final tableWidth = constraints.maxWidth < minWidth
+                ? minWidth
+                : constraints.maxWidth;
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: tableWidth,
+                child: Column(
+                  children: [
+                    const _AdminManagementRow(
+                      header: true,
+                      name: 'Admin',
+                      email: 'Email',
+                      role: 'Role',
+                      lastLogin: 'Last Login',
+                    ),
+                    if (_loading)
+                      const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: CircularProgressIndicator(),
+                      )
+                    else if (_loadError != null)
+                      Padding(
+                        padding: const EdgeInsets.all(18),
+                        child: Text(
+                          'Admin list could not be loaded: $_loadError',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      )
+                    else if (_visibleAdmins.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(22),
+                        child: Text('No administrators match your search.'),
+                      )
+                    else
+                      for (final admin in _visibleAdmins)
+                        _AdminManagementRow(
+                          name: admin.name,
+                          email: admin.email,
+                          role: admin.role,
+                          lastLogin: admin.lastLogin,
+                          active: admin.active,
+                          onEdit: () => _editAdmin(admin),
+                          onToggle: () => _toggleAdmin(admin),
+                          onRemove: () => _removeAdmin(admin),
+                        ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPermissionsTable() {
+    const permissions = [
+      _RolePermission('Users', true, false, true, false),
+      _RolePermission('Billing', true, false, true, false),
+      _RolePermission('Configuration', true, false, true, true),
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Role Permissions',
+            style: TextStyle(
+              color: CommitmentAdminApp.textDark,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 14),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const minWidth = 620.0;
+              final tableWidth = constraints.maxWidth < minWidth
+                  ? minWidth
+                  : constraints.maxWidth;
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: tableWidth,
+                  child: Column(
+                    children: [
+                      const _RolePermissionRow(
+                        module: 'Module',
+                        view: 'View',
+                        create: 'Create',
+                        edit: 'Edit',
+                        delete: 'Delete',
+                        header: true,
+                      ),
+                      for (final permission in permissions)
+                        _RolePermissionRow(
+                          module: permission.module,
+                          view: permission.view ? '✓' : '—',
+                          create: permission.create ? '✓' : '—',
+                          edit: permission.edit ? '✓' : '—',
+                          delete: permission.delete ? '✓' : '—',
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ManagedAdmin {
+  final String id;
+  final String name;
+  final String email;
+  final String role;
+  final String lastLogin;
+  final bool active;
+
+  const _ManagedAdmin({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.role,
+    required this.lastLogin,
+    this.active = true,
+  });
+
+  _ManagedAdmin copyWith({
+    String? name,
+    String? email,
+    String? role,
+    bool? active,
+  }) {
+    return _ManagedAdmin(
+      id: id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      role: role ?? this.role,
+      lastLogin: lastLogin,
+      active: active ?? this.active,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'email': email,
+    'role': role,
+    'lastLogin': lastLogin,
+    'active': active,
+  };
+
+  factory _ManagedAdmin.fromJson(Map<String, dynamic> json) {
+    return _ManagedAdmin(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      email: json['email'] as String,
+      role: json['role'] as String,
+      lastLogin: json['lastLogin'] as String,
+      active: json['active'] as bool? ?? true,
+    );
+  }
+}
+
+class _AdminManagementRow extends StatelessWidget {
+  final bool header;
+  final String name;
+  final String email;
+  final String role;
+  final String lastLogin;
+  final bool active;
+  final VoidCallback? onEdit;
+  final VoidCallback? onToggle;
+  final VoidCallback? onRemove;
+
+  const _AdminManagementRow({
+    this.header = false,
+    required this.name,
+    required this.email,
+    required this.role,
+    required this.lastLogin,
+    this.active = true,
+    this.onEdit,
+    this.onToggle,
+    this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final style = TextStyle(
+      color: header ? const Color(0xFF34404B) : CommitmentAdminApp.textDark,
+      fontSize: 12,
+      fontWeight: header ? FontWeight.w700 : FontWeight.w500,
+    );
+
+    Widget cell(String value, {int flex = 2}) => Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+        child: Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: style,
+        ),
+      ),
+    );
+
+    return Container(
+      constraints: const BoxConstraints(minHeight: 48),
+      decoration: BoxDecoration(
+        color: header ? const Color(0xFFE3F3FF) : Colors.white,
+        border: header
+            ? null
+            : const Border(top: BorderSide(color: CommitmentAdminApp.border)),
+      ),
+      child: Row(
+        children: [
+          cell(name, flex: 2),
+          cell(email, flex: 3),
+          cell(role, flex: 2),
+          cell(lastLogin, flex: 2),
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: header
+                  ? Text('Status', style: style)
+                  : Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: active
+                              ? const Color(0xFFE8F6EE)
+                              : const Color(0xFFFCEBEC),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          active ? 'Active' : 'Inactive',
+                          style: TextStyle(
+                            color: active
+                                ? const Color(0xFF248A55)
+                                : const Color(0xFFC74343),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+          SizedBox(
+            width: 64,
+            child: header
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text('Actions', style: style),
+                  )
+                : PopupMenuButton<String>(
+                    tooltip: 'Admin actions',
+                    onSelected: (action) {
+                      switch (action) {
+                        case 'edit':
+                          onEdit?.call();
+                        case 'toggle':
+                          onToggle?.call();
+                        case 'remove':
+                          onRemove?.call();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Text('Edit admin'),
+                      ),
+                      PopupMenuItem(
+                        value: 'toggle',
+                        child: Text(active ? 'Deactivate' : 'Activate'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'remove',
+                        child: Text('Remove admin'),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ManagedAdminEditor extends StatefulWidget {
+  final List<String> roles;
+  final _ManagedAdmin? initialAdmin;
+
+  const _ManagedAdminEditor({required this.roles, this.initialAdmin});
+
+  @override
+  State<_ManagedAdminEditor> createState() => _ManagedAdminEditorState();
+}
+
+class _ManagedAdminEditorState extends State<_ManagedAdminEditor> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
+  late String _role;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    final admin = widget.initialAdmin;
+    _nameController = TextEditingController(text: admin?.name ?? '');
+    _emailController = TextEditingController(text: admin?.email ?? '');
+    _role = admin?.role ?? widget.roles.first;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    if (name.isEmpty ||
+        !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+      setState(() => _error = 'Enter a name and a valid email address.');
+      return;
+    }
+
+    final original = widget.initialAdmin;
+    Navigator.pop(
+      context,
+      _ManagedAdmin(
+        id: original?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
+        name: name,
+        email: email,
+        role: _role,
+        lastLogin: original?.lastLogin ?? 'Never',
+        active: original?.active ?? true,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.initialAdmin == null ? 'Add Admin' : 'Edit Admin'),
+      content: SizedBox(
+        width: 420,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _nameController,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(labelText: 'Admin name'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(labelText: 'Email'),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: _role,
+              decoration: const InputDecoration(labelText: 'Role'),
+              items: [
+                for (final role in widget.roles)
+                  DropdownMenuItem(value: role, child: Text(role)),
+              ],
+              onChanged: (value) {
+                if (value != null) setState(() => _role = value);
+              },
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  _error!,
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(onPressed: _submit, child: const Text('Save')),
+      ],
+    );
+  }
+}
+
+class _RolePermission {
+  final String module;
+  final bool view;
+  final bool create;
+  final bool edit;
+  final bool delete;
+
+  const _RolePermission(
+    this.module,
+    this.view,
+    this.create,
+    this.edit,
+    this.delete,
+  );
+}
+
+class _RolePermissionRow extends StatelessWidget {
+  final String module;
+  final String view;
+  final String create;
+  final String edit;
+  final String delete;
+  final bool header;
+
+  const _RolePermissionRow({
+    required this.module,
+    required this.view,
+    required this.create,
+    required this.edit,
+    required this.delete,
+    this.header = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final style = TextStyle(
+      color: header ? const Color(0xFF34404B) : CommitmentAdminApp.textDark,
+      fontSize: 12,
+      fontWeight: header ? FontWeight.w700 : FontWeight.w500,
+    );
+
+    Widget cell(String value, {int flex = 1}) => Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+        child: Text(value, style: style),
+      ),
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: header ? const Color(0xFFF2F8FC) : Colors.white,
+        border: const Border(top: BorderSide(color: CommitmentAdminApp.border)),
+      ),
+      child: Row(
+        children: [
+          cell(module, flex: 3),
+          cell(view),
+          cell(create),
+          cell(edit),
+          cell(delete),
+        ],
+      ),
+    );
+  }
+}
+
+class ConfigurationPage extends StatefulWidget {
+  final VoidCallback onBack;
+  final Widget profile;
+
+  const ConfigurationPage({
+    super.key,
+    required this.onBack,
+    required this.profile,
+  });
+
+  @override
+  State<ConfigurationPage> createState() => _ConfigurationPageState();
+}
+
+class _ConfigurationPageState extends State<ConfigurationPage> {
+  static const _sections = [
+    ('General', Icons.tune_outlined),
+    ('Commitments', Icons.calendar_month_outlined),
+    ('Reminders', Icons.alarm_outlined),
+    ('Notifications', Icons.notifications_outlined),
+    ('Trial & Billing', Icons.credit_card_outlined),
+    ('Files', Icons.attach_file_outlined),
+  ];
+  static const _reminderOptions = [
+    '15 minutes',
+    '30 minutes',
+    '1 hour',
+    '2 hours',
+  ];
+
+  final _trialCommitmentLimitController = TextEditingController(text: '10');
+  final _activeCommitmentLimitController = TextEditingController(text: '10');
+  final _maxFileSizeController = TextEditingController(text: '10');
+
+  String _section = 'General';
+  String _trialDuration = '14 days';
+  String _gracePeriod = '7 days';
+  String _reminderLeadTime = '30 minutes';
+  String _quietHours = '10:00 PM – 8:00 AM';
+  bool _commitmentsEnabled = true;
+  bool _allowCommitmentEdits = true;
+  bool _automaticReminders = true;
+  bool _pushNotifications = true;
+  bool _emailNotifications = true;
+  bool _deliveryFailureAlerts = true;
+  bool _billingReminders = true;
+  bool _requireAttachment = false;
+  final Set<String> _allowedFileTypes = {'PDF', 'DOCX', 'PNG', 'JPG'};
+
+  @override
+  void dispose() {
+    _trialCommitmentLimitController.dispose();
+    _activeCommitmentLimitController.dispose();
+    _maxFileSizeController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: _adminPagePadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'System Configuration',
+              subtitle: 'Product-wide configuration',
+              onBack: widget.onBack,
+              action: widget.profile,
+            ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 800) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildSectionNavigation(compact: true),
+                      const SizedBox(height: 14),
+                      _buildSettingsPanel(),
+                    ],
+                  );
+                }
+
+                return IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(width: 240, child: _buildSectionNavigation()),
+                      const SizedBox(width: 18),
+                      Expanded(child: _buildSettingsPanel()),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionNavigation({bool compact = false}) {
+    final content = Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Text(
+            'Configuration',
+            style: TextStyle(
+              color: CommitmentAdminApp.textDark,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        for (final (title, icon) in _sections)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: _buildSectionButton(title, icon),
+          ),
+      ],
+    );
+
+    return Container(
+      decoration: cardDecoration(),
+      child: compact
+          ? SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(width: 740, child: content),
+            )
+          : content,
+    );
+  }
+
+  Widget _buildSectionButton(String title, IconData icon) {
+    final selected = _section == title;
+    return Material(
+      color: selected ? CommitmentAdminApp.lightBlue : Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => setState(() => _section = title),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: selected
+                    ? CommitmentAdminApp.primary
+                    : CommitmentAdminApp.textGrey,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: TextStyle(
+                  color: selected
+                      ? CommitmentAdminApp.primary
+                      : CommitmentAdminApp.textDark,
+                  fontSize: 13,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsPanel() {
+    final title = switch (_section) {
+      'General' => 'General Settings',
+      'Commitments' => 'Commitment Settings',
+      'Reminders' => 'Reminder Settings',
+      'Notifications' => 'Notification Settings',
+      'Trial & Billing' => 'Trial & Billing Settings',
+      'Files' => 'File Settings',
+      _ => 'General Settings',
+    };
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      decoration: cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: CommitmentAdminApp.textDark,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _section == 'General'
+                ? 'Product-wide defaults'
+                : 'Manage $_section defaults for the product',
+            style: const TextStyle(
+              color: CommitmentAdminApp.textGrey,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildSectionFields(),
+          const SizedBox(height: 22),
+          const Divider(height: 1),
+          const SizedBox(height: 18),
+          SizedBox(
+            height: 44,
+            child: FilledButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.save_outlined, size: 18),
+              label: const Text(
+                'Save Changes',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionFields() {
+    return switch (_section) {
+      'General' => _buildGeneralFields(),
+      'Commitments' => _buildCommitmentFields(),
+      'Reminders' => _buildReminderFields(),
+      'Notifications' => _buildNotificationFields(),
+      'Trial & Billing' => _buildBillingFields(),
+      'Files' => _buildFileFields(),
+      _ => _buildGeneralFields(),
+    };
+  }
+
+  Widget _buildGeneralFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildNumberField(
+          'Trial commitment limit',
+          _trialCommitmentLimitController,
+          suffix: 'commitments',
+        ),
+        const SizedBox(height: 16),
+        _buildDropdownField(
+          label: 'Trial duration',
+          value: _trialDuration,
+          options: const ['7 days', '14 days', '30 days'],
+          onChanged: (value) => setState(() => _trialDuration = value),
+        ),
+        const SizedBox(height: 16),
+        _buildDropdownField(
+          label: 'Maximum attachment size',
+          value: '${_maxFileSizeController.text} MB',
+          options: const ['5 MB', '10 MB', '25 MB', '50 MB'],
+          onChanged: (value) => setState(
+            () => _maxFileSizeController.text = value.split(' ').first,
+          ),
+        ),
+        const SizedBox(height: 22),
+        _buildGroupTitle('Reminder Options'),
+        const SizedBox(height: 8),
+        _buildReminderChoices(),
+      ],
+    );
+  }
+
+  Widget _buildCommitmentFields() {
+    return Column(
+      children: [
+        _buildNumberField(
+          'Maximum active commitments per user',
+          _activeCommitmentLimitController,
+          suffix: 'commitments',
+        ),
+        const SizedBox(height: 8),
+        _buildSwitch(
+          title: 'Allow users to edit commitments',
+          subtitle: 'Users can update commitment details after creating them.',
+          value: _allowCommitmentEdits,
+          onChanged: (value) => setState(() => _allowCommitmentEdits = value),
+        ),
+        _buildSwitch(
+          title: 'Enable commitment tracking',
+          subtitle: 'Allow users to create and track commitments.',
+          value: _commitmentsEnabled,
+          onChanged: (value) => setState(() => _commitmentsEnabled = value),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReminderFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSwitch(
+          title: 'Automatic reminders',
+          subtitle: 'Send reminders before commitments are due.',
+          value: _automaticReminders,
+          onChanged: (value) => setState(() => _automaticReminders = value),
+        ),
+        const SizedBox(height: 16),
+        _buildGroupTitle('Send reminders'),
+        const SizedBox(height: 8),
+        _buildReminderChoices(),
+      ],
+    );
+  }
+
+  Widget _buildNotificationFields() {
+    return Column(
+      children: [
+        _buildSwitch(
+          title: 'Push notifications',
+          subtitle: 'Send alerts to the mobile app.',
+          value: _pushNotifications,
+          onChanged: (value) => setState(() => _pushNotifications = value),
+        ),
+        _buildSwitch(
+          title: 'Email notifications',
+          subtitle: 'Send important updates by email.',
+          value: _emailNotifications,
+          onChanged: (value) => setState(() => _emailNotifications = value),
+        ),
+        _buildSwitch(
+          title: 'Delivery failure alerts',
+          subtitle: 'Notify administrators when delivery fails.',
+          value: _deliveryFailureAlerts,
+          onChanged: (value) => setState(() => _deliveryFailureAlerts = value),
+        ),
+        const SizedBox(height: 12),
+        _buildDropdownField(
+          label: 'Quiet hours',
+          value: _quietHours,
+          options: const [
+            '10:00 PM – 8:00 AM',
+            '9:00 PM – 7:00 AM',
+            'No quiet hours',
+          ],
+          onChanged: (value) => setState(() => _quietHours = value),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBillingFields() {
+    return Column(
+      children: [
+        _buildDropdownField(
+          label: 'Trial duration',
+          value: _trialDuration,
+          options: const ['7 days', '14 days', '30 days'],
+          onChanged: (value) => setState(() => _trialDuration = value),
+        ),
+        const SizedBox(height: 16),
+        _buildDropdownField(
+          label: 'Payment grace period',
+          value: _gracePeriod,
+          options: const ['3 days', '7 days', '14 days'],
+          onChanged: (value) => setState(() => _gracePeriod = value),
+        ),
+        const SizedBox(height: 8),
+        _buildSwitch(
+          title: 'Billing reminders',
+          subtitle: 'Remind users about upcoming renewals and failed payments.',
+          value: _billingReminders,
+          onChanged: (value) => setState(() => _billingReminders = value),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFileFields() {
+    const fileTypes = ['PDF', 'DOCX', 'PNG', 'JPG'];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildDropdownField(
+          label: 'Maximum attachment size',
+          value: '${_maxFileSizeController.text} MB',
+          options: const ['5 MB', '10 MB', '25 MB', '50 MB'],
+          onChanged: (value) => setState(
+            () => _maxFileSizeController.text = value.split(' ').first,
+          ),
+        ),
+        const SizedBox(height: 18),
+        _buildGroupTitle('Allowed file types'),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            for (final type in fileTypes)
+              FilterChip(
+                label: Text(type),
+                selected: _allowedFileTypes.contains(type),
+                onSelected: (selected) => setState(() {
+                  if (selected) {
+                    _allowedFileTypes.add(type);
+                  } else {
+                    _allowedFileTypes.remove(type);
+                  }
+                }),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _buildSwitch(
+          title: 'Require an attachment',
+          subtitle: 'Require users to attach a file to a commitment.',
+          value: _requireAttachment,
+          onChanged: (value) => setState(() => _requireAttachment = value),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNumberField(
+    String label,
+    TextEditingController controller, {
+    required String suffix,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildGroupTitle(label),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: InputDecoration(
+            suffixText: suffix,
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: CommitmentAdminApp.border),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required String value,
+    required List<String> options,
+    required ValueChanged<String> onChanged,
+  }) {
+    void handleSelection(String? selected) {
+      if (selected == null) return;
+      onChanged(selected);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildGroupTitle(label),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          initialValue: value,
+          isExpanded: true,
+          decoration: InputDecoration(
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: CommitmentAdminApp.border),
+            ),
+          ),
+          items: [
+            for (final option in options)
+              DropdownMenuItem(value: option, child: Text(option)),
+          ],
+          onChanged: handleSelection,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReminderChoices() {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 4,
+      children: [
+        for (final option in _reminderOptions)
+          ChoiceChip(
+            label: Text(option),
+            selected: _reminderLeadTime == option,
+            onSelected: (_) => setState(() => _reminderLeadTime = option),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildSwitch({
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: CommitmentAdminApp.textDark,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(
+          color: CommitmentAdminApp.textGrey,
+          fontSize: 12,
+        ),
+      ),
+      value: value,
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildGroupTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        color: CommitmentAdminApp.textDark,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
 class PlaceholderPage extends StatelessWidget {
   final String title;
   final VoidCallback onBack;
@@ -8517,7 +10901,7 @@ class AdminApiService {
       throw const AdminApiException('The server took too long to respond.');
     } on http.ClientException {
       throw const AdminApiException(
-        'Could not reach the admin API at $baseUrl. Start the backend on port 8080 and confirm it allows this localhost web origin.',
+        'Could not reach the admin API at $baseUrl. In VS Code, launch "Commitment Admin Web (API)" from Run and Debug to start the backend.',
       );
     }
   }

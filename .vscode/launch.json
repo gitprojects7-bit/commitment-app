@@ -6,6 +6,18 @@
             "request": "launch",
             "type": "dart",
             "deviceId": "emulator-5554"
+        },
+        {
+            "name": "Commitment Admin Web (API)",
+            "request": "launch",
+            "type": "dart",
+            "program": "${workspaceFolder}/admin_backup/lib/main.dart",
+            "deviceId": "chrome",
+            "toolArgs": [
+                "--web-port=53120",
+                "--dart-define=API_BASE_URL=http://localhost:8080"
+            ],
+            "preLaunchTask": "Start Commitment API"
         }
     ]
 }

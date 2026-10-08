@@ -65,6 +65,10 @@ In MongoDB Compass, refresh and open `commitment_app` > `admins`. The `password`
 
 The existing admin Flutter project is `../admin_backup`.
 
+When opening either the repository or `admin_backup` folder in VS Code, allow the **Start Commitment API** folder-open task if prompted. It starts the API automatically if needed, waits until the login endpoint responds, and runs the API independently of VS Code, so closing and reopening the editor does not stop it. After a computer restart, opening the project starts it again. You can also select **Commitment Admin Web (API)** in Run and Debug to ensure the API is available before launching the admin app. MongoDB must be running first.
+
+The launch configuration uses the backend JAR at `target/commitment-admin-api-0.0.1-SNAPSHOT.jar`. Rebuild the backend before launching if its source has changed. Backend startup logs are written under `%LOCALAPPDATA%\CommitmentApp\logs`.
+
 ```powershell
 cd ..\admin_backup
 flutter pub get
