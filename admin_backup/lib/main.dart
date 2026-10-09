@@ -362,7 +362,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isSignup ? 'Create Admin Account' : 'Super Admin Portal',
+          isSignup ? 'CREATE ADMIN ACCOUNT' : 'ADMIN LOGIN',
           style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
@@ -501,7 +501,7 @@ class _BrandLogo extends StatelessWidget {
           ),
           const SizedBox(width: 14),
           const Text(
-            'Commitment App',
+            'COMMITMENT APP',
             style: TextStyle(
               color: Color(0xFF18232E),
               fontSize: 22,
@@ -528,7 +528,7 @@ class AdminDashboardScreen extends StatefulWidget {
 }
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
-  String selectedItem = 'Dashboard';
+  String selectedItem = 'DASHBOARD';
   final List<String> navigationHistory = [];
   final AdminApiService _adminApi = AdminApiService();
   late final Future<AdminModel?> _profileFuture;
@@ -799,60 +799,60 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
 
     // Keep route cases in the same order as the managed pages in the sidebar.
-    switch (selectedItem) {
-      case 'Dashboard':
+    switch (selectedItem.toUpperCase()) {
+      case 'DASHBOARD':
         return DashboardPage(
-          onCommitmentsPressed: () => selectItem('Commitments'),
+          onCommitmentsPressed: () => selectItem('COMMITMENTS'),
           onBack: goBack,
           profile: profile,
         );
 
-      case 'Users':
+      case 'USERS':
         return UsersPage(onBack: goBack, profile: profile);
 
-      case 'Commitments':
+      case 'COMMITMENTS':
         return CommitmentsPage(onBack: goBack, profile: profile);
 
-      case 'People':
+      case 'PEOPLE':
         return PeoplePage(onBack: goBack, profile: profile);
 
-      case 'Location & Maps':
+      case 'LOCATION & MAPS':
         return LocationMapsPage(onBack: goBack, profile: profile);
 
-      case 'Follow-ups':
+      case 'FOLLOW-UPS':
         return FollowUpsPage(onBack: goBack, profile: profile);
 
-      case 'Notifications':
+      case 'NOTIFICATIONS':
         return NotificationsPage(onBack: goBack, profile: profile);
 
-      case 'Analytics':
+      case 'ANALYTICS':
         return AnalyticsPage(onBack: goBack, profile: profile);
 
-      case 'Attachments':
+      case 'ATTACHMENTS':
         return AttachmentsPage(onBack: goBack, profile: profile);
 
-      case 'Subscription':
+      case 'SUBSCRIPTION':
         return SubscriptionPage(onBack: goBack, profile: profile);
 
-      case 'Support':
+      case 'SUPPORT':
         return SupportPage(onBack: goBack, profile: profile);
 
-      case 'Reports':
+      case 'REPORTS':
         return ReportsPage(onBack: goBack, profile: profile);
 
-      case 'Configuration':
+      case 'CONFIGURATION':
         return ConfigurationPage(onBack: goBack, profile: profile);
 
-      case 'Admin Management':
+      case 'ADMIN MANAGEMENT':
         return AdminManagementPage(onBack: goBack, profile: profile);
 
-      case 'Audit Logs':
+      case 'AUDIT LOGS':
         return AuditLogsPage(onBack: goBack, profile: profile);
 
-      case 'Security':
+      case 'SECURITY':
         return SecurityPage(onBack: goBack, profile: profile);
 
-      case 'System Health':
+      case 'SYSTEM HEALTH':
         return SystemHealthPage(onBack: goBack, profile: profile);
 
       default:
@@ -880,23 +880,23 @@ class AdminSidebar extends StatelessWidget {
   });
 
   static const items = [
-    ['Dashboard', Icons.dashboard_outlined],
-    ['Users', Icons.people_outline],
-    ['Commitments', Icons.calendar_month_outlined],
-    ['People', Icons.group_outlined],
-    ['Location & Maps', Icons.location_on_outlined],
-    ['Follow-ups', Icons.notifications_active_outlined],
-    ['Notifications', Icons.notifications_none_outlined],
-    ['Analytics', Icons.analytics_outlined],
-    ['Attachments', Icons.attach_file],
-    ['Subscription', Icons.card_membership_outlined],
-    ['Support', Icons.support_agent_outlined],
-    ['Reports', Icons.description_outlined],
-    ['Configuration', Icons.settings_outlined],
-    ['Admin Management', Icons.admin_panel_settings_outlined],
-    ['Audit Logs', Icons.history_outlined],
-    ['Security', Icons.security_outlined],
-    ['System Health', Icons.system_update_outlined],
+    ['DASHBOARD', Icons.dashboard_outlined],
+    ['USERS', Icons.people_outline],
+    ['COMMITMENTS', Icons.calendar_month_outlined],
+    ['PEOPLE', Icons.group_outlined],
+    ['LOCATION & MAPS', Icons.location_on_outlined],
+    ['FOLLOW-UPS', Icons.notifications_active_outlined],
+    ['NOTIFICATIONS', Icons.notifications_none_outlined],
+    ['ANALYTICS', Icons.analytics_outlined],
+    ['ATTACHMENTS', Icons.attach_file],
+    ['SUBSCRIPTION', Icons.card_membership_outlined],
+    ['SUPPORT', Icons.support_agent_outlined],
+    ['REPORTS', Icons.description_outlined],
+    ['CONFIGURATION', Icons.settings_outlined],
+    ['ADMIN MANAGEMENT', Icons.admin_panel_settings_outlined],
+    ['AUDIT LOGS', Icons.history_outlined],
+    ['SECURITY', Icons.security_outlined],
+    ['SYSTEM HEALTH', Icons.system_update_outlined],
   ];
 
   @override
@@ -938,9 +938,9 @@ class AdminSidebar extends StatelessWidget {
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Text(
-                    'Commitment App',
+                    'COMMITMENT APP',
                     style: TextStyle(
-                      fontSize: 19,
+                      fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: CommitmentAdminApp.textDark,
                     ),
@@ -1004,8 +1004,9 @@ class AdminSidebar extends StatelessWidget {
                                     ? const Color(0xFF12324A)
                                     : const Color(0xFF34404B),
                                 fontWeight: selected
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
+                                fontSize: 11,
                               ),
                             ),
                           ),
@@ -1285,7 +1286,7 @@ class Tilt3D extends StatefulWidget {
   final Widget child;
   final double maxTilt;
 
-  const Tilt3D({super.key, required this.child, this.maxTilt = 0.08});
+  const Tilt3D({super.key, required this.child, this.maxTilt = 0.035});
 
   @override
   State<Tilt3D> createState() => _Tilt3DState();
@@ -1324,14 +1325,14 @@ class _Tilt3DState extends State<Tilt3D> {
       onHover: _onHover,
       onExit: (_) => _reset(),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
+        duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
         transformAlignment: Alignment.center,
         transform: Matrix4.identity()
           ..setEntry(3, 2, 0.0012)
           ..rotateX(rx)
           ..rotateY(ry)
-          ..translateByDouble(0.0, hover ? -6.0 : 0.0, 0.0, 1.0),
+          ..translateByDouble(0.0, hover ? -4.0 : 0.0, 0.0, 1.0),
         child: widget.child,
       ),
     );
@@ -1812,7 +1813,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Text(
-                    'Commitment Today',
+                    'Commitments Today',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -2075,53 +2076,55 @@ class _AnalyticsMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 118),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: cardDecoration(radius: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              Icon(metric.icon, size: 17, color: metric.color),
-              const SizedBox(width: 7),
-              Expanded(
-                child: Text(
-                  metric.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: CommitmentAdminApp.textGrey,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+    return Tilt3D(
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 118),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: cardDecoration(radius: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              children: [
+                Icon(metric.icon, size: 17, color: metric.color),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Text(
+                    metric.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textGrey,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              metric.value,
+              style: const TextStyle(
+                color: CommitmentAdminApp.textDark,
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            metric.value,
-            style: const TextStyle(
-              color: CommitmentAdminApp.textDark,
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
             ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            metric.change,
-            style: TextStyle(
-              color: metric.positive
-                  ? const Color(0xFF26945A)
-                  : const Color(0xFFE35D5D),
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            const SizedBox(height: 3),
+            Text(
+              metric.change,
+              style: TextStyle(
+                color: metric.positive
+                    ? const Color(0xFF26945A)
+                    : const Color(0xFFE35D5D),
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -2614,49 +2617,52 @@ class _TodayBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            child: Icon(icon, color: Colors.white, size: 18),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      color: CommitmentAdminApp.textGrey,
-                      fontSize: 12,
+    return Tilt3D(
+      maxTilt: 0.045,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              child: Icon(icon, color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        color: CommitmentAdminApp.textGrey,
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w700,
-                      color: _dashTitle,
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 19,
+                        fontWeight: FontWeight.w700,
+                        color: _dashTitle,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -2687,68 +2693,71 @@ class _BusinessBox extends StatelessWidget {
         ? const Color(0xFF2EAD54)
         : const Color(0xFFE83E3E);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            child: Icon(icon, color: Colors.white, size: 18),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      color: CommitmentAdminApp.textGrey,
-                      fontSize: 12,
-                    ),
-                  ),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w700,
-                      color: _dashTitle,
-                    ),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        trendUp ? Icons.north_east : Icons.south_east,
-                        size: 11,
-                        color: trendColor,
+    return Tilt3D(
+      maxTilt: 0.045,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              child: Icon(icon, color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        color: CommitmentAdminApp.textGrey,
+                        fontSize: 12,
                       ),
-                      const SizedBox(width: 3),
-                      Text(
-                        trend,
-                        style: TextStyle(
+                    ),
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 19,
+                        fontWeight: FontWeight.w700,
+                        color: _dashTitle,
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          trendUp ? Icons.north_east : Icons.south_east,
+                          size: 11,
                           color: trendColor,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 3),
+                        Text(
+                          trend,
+                          style: TextStyle(
+                            color: trendColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -3287,12 +3296,12 @@ class _UsersPageState extends State<UsersPage> {
               color: const Color(0xFFE3F3FF),
               child: const Row(
                 children: [
-                  Expanded(flex: 3, child: Text('User', style: headStyle)),
-                  Expanded(flex: 2, child: Text('Business', style: headStyle)),
-                  Expanded(child: Text('Plan', style: headStyle)),
-                  Expanded(child: Text('Commitments', style: headStyle)),
-                  Expanded(child: Text('Status', style: headStyle)),
-                  Expanded(child: Text('Created Date', style: headStyle)),
+                  Expanded(flex: 3, child: Text('USER', style: headStyle)),
+                  Expanded(flex: 2, child: Text('BUSINESS', style: headStyle)),
+                  Expanded(child: Text('PLAN', style: headStyle)),
+                  Expanded(child: Text('COMMITMENTS', style: headStyle)),
+                  Expanded(child: Text('STATUS', style: headStyle)),
+                  Expanded(child: Text('CREATED DATE', style: headStyle)),
                   SizedBox(width: 40, child: Text('')),
                 ],
               ),
@@ -6852,58 +6861,60 @@ class _AttachmentSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 110,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: cardDecoration(radius: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: summary.color.withAlpha(24),
-              borderRadius: BorderRadius.circular(12),
+    return Tilt3D(
+      child: Container(
+        height: 110,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: cardDecoration(radius: 16),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: summary.color.withAlpha(24),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(summary.icon, color: summary.color, size: 20),
             ),
-            child: Icon(summary.icon, color: summary.color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  summary.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: CommitmentAdminApp.textGrey,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    summary.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textGrey,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  summary.value,
-                  style: const TextStyle(
-                    color: CommitmentAdminApp.textDark,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
+                  const SizedBox(height: 3),
+                  Text(
+                    summary.value,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textDark,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                ),
-                Text(
-                  summary.change,
-                  style: const TextStyle(
-                    color: Color(0xFF26945A),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
+                  Text(
+                    summary.change,
+                    style: const TextStyle(
+                      color: Color(0xFF26945A),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -7373,61 +7384,63 @@ class _SubscriptionSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 110,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: cardDecoration(radius: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: summary.color.withAlpha(24),
-              borderRadius: BorderRadius.circular(12),
+    return Tilt3D(
+      child: Container(
+        height: 110,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: cardDecoration(radius: 16),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: summary.color.withAlpha(24),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(summary.icon, color: summary.color, size: 20),
             ),
-            child: Icon(summary.icon, color: summary.color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  summary.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: CommitmentAdminApp.textGrey,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    summary.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textGrey,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  summary.value,
-                  style: const TextStyle(
-                    color: CommitmentAdminApp.textDark,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
+                  const SizedBox(height: 4),
+                  Text(
+                    summary.value,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textDark,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  summary.change,
-                  style: TextStyle(
-                    color: summary.change.startsWith('-')
-                        ? const Color(0xFFE35D5D)
-                        : const Color(0xFF26945A),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
+                  const SizedBox(height: 2),
+                  Text(
+                    summary.change,
+                    style: TextStyle(
+                      color: summary.change.startsWith('-')
+                          ? const Color(0xFFE35D5D)
+                          : const Color(0xFF26945A),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -7897,60 +7910,62 @@ class _SupportSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 110,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: cardDecoration(radius: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: summary.color.withAlpha(24),
-              borderRadius: BorderRadius.circular(12),
+    return Tilt3D(
+      child: Container(
+        height: 110,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: cardDecoration(radius: 16),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: summary.color.withAlpha(24),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(summary.icon, color: summary.color, size: 20),
             ),
-            child: Icon(summary.icon, color: summary.color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  summary.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: CommitmentAdminApp.textGrey,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    summary.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textGrey,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  summary.value,
-                  style: const TextStyle(
-                    color: CommitmentAdminApp.textDark,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
+                  const SizedBox(height: 4),
+                  Text(
+                    summary.value,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textDark,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                ),
-                Text(
-                  summary.change,
-                  style: TextStyle(
-                    color: summary.change.startsWith('-')
-                        ? const Color(0xFFE35D5D)
-                        : const Color(0xFF26945A),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
+                  Text(
+                    summary.change,
+                    style: TextStyle(
+                      color: summary.change.startsWith('-')
+                          ? const Color(0xFFE35D5D)
+                          : const Color(0xFF26945A),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -8421,7 +8436,7 @@ class _SystemHealthPageState extends State<SystemHealthPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: _adminPagePadding,
+        padding: const EdgeInsets.fromLTRB(26, 22, 26, 26),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -8432,9 +8447,9 @@ class _SystemHealthPageState extends State<SystemHealthPage> {
               action: widget.profile,
             ),
             _buildOverallStatus(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             _buildServicesTable(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             _buildMetrics(),
           ],
         ),
@@ -8445,12 +8460,12 @@ class _SystemHealthPageState extends State<SystemHealthPage> {
   Widget _buildOverallStatus() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: cardDecoration(),
       child: Row(
         children: [
-          const Icon(Icons.check_circle, color: Color(0xFF2EAD67), size: 23),
-          const SizedBox(width: 12),
+          const Icon(Icons.check_circle, color: Color(0xFF2EAD67), size: 20),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -8459,7 +8474,7 @@ class _SystemHealthPageState extends State<SystemHealthPage> {
                   'All critical systems operational',
                   style: TextStyle(
                     color: CommitmentAdminApp.textDark,
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -8468,7 +8483,7 @@ class _SystemHealthPageState extends State<SystemHealthPage> {
                   _checkedLabel,
                   style: const TextStyle(
                     color: CommitmentAdminApp.textGrey,
-                    fontSize: 12,
+                    fontSize: 11,
                   ),
                 ),
               ],
@@ -8493,7 +8508,7 @@ class _SystemHealthPageState extends State<SystemHealthPage> {
   Widget _buildServicesTable() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+      padding: const EdgeInsets.fromLTRB(13, 12, 13, 8),
       decoration: cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -8502,7 +8517,7 @@ class _SystemHealthPageState extends State<SystemHealthPage> {
             'Services',
             style: TextStyle(
               color: CommitmentAdminApp.textDark,
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -8511,7 +8526,7 @@ class _SystemHealthPageState extends State<SystemHealthPage> {
             'Live system status',
             style: TextStyle(color: CommitmentAdminApp.textGrey, fontSize: 12),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           LayoutBuilder(
             builder: (context, constraints) {
               const minWidth = 700.0;
@@ -8614,12 +8629,12 @@ class _HealthServiceRow extends StatelessWidget {
         : const Color(0xFFB07812);
     final textStyle = TextStyle(
       color: header ? const Color(0xFF34404B) : CommitmentAdminApp.textDark,
-      fontSize: 12,
+      fontSize: 11,
       fontWeight: header ? FontWeight.w700 : FontWeight.w500,
     );
 
     return Container(
-      constraints: const BoxConstraints(minHeight: 42),
+      constraints: const BoxConstraints(minHeight: 36),
       decoration: BoxDecoration(
         color: header ? const Color(0xFFF2F8FC) : Colors.white,
         border: const Border(top: BorderSide(color: CommitmentAdminApp.border)),
@@ -8629,7 +8644,7 @@ class _HealthServiceRow extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               child: Row(
                 children: [
                   if (!header) ...[
@@ -8657,7 +8672,7 @@ class _HealthServiceRow extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               child: Text(
                 value,
                 maxLines: 1,
@@ -8669,14 +8684,14 @@ class _HealthServiceRow extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               child: Text(
                 status,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: header ? const Color(0xFF34404B) : statusColor,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -8711,50 +8726,52 @@ class _HealthMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 124,
-      padding: const EdgeInsets.all(15),
-      decoration: cardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(metric.icon, size: 17, color: metric.color),
-              const SizedBox(width: 7),
-              Expanded(
-                child: Text(
-                  metric.title.toUpperCase(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: CommitmentAdminApp.textGrey,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
+    return Tilt3D(
+      child: Container(
+        height: 104,
+        padding: const EdgeInsets.all(12),
+        decoration: cardDecoration(radius: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(metric.icon, size: 15, color: metric.color),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    metric.title.toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textGrey,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
+              ],
+            ),
+            const Spacer(),
+            Text(
+              metric.value,
+              style: TextStyle(
+                color: metric.color,
+                fontSize: 21,
+                height: 1,
+                fontWeight: FontWeight.w800,
               ),
-            ],
-          ),
-          const Spacer(),
-          Text(
-            metric.value,
-            style: TextStyle(
-              color: metric.color,
-              fontSize: 24,
-              height: 1,
-              fontWeight: FontWeight.w800,
             ),
-          ),
-          const SizedBox(height: 7),
-          Text(
-            metric.caption,
-            style: const TextStyle(
-              color: CommitmentAdminApp.textGrey,
-              fontSize: 11,
+            const SizedBox(height: 5),
+            Text(
+              metric.caption,
+              style: const TextStyle(
+                color: CommitmentAdminApp.textGrey,
+                fontSize: 10,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -8769,29 +8786,29 @@ class SecurityPage extends StatelessWidget {
   static const _metrics = [
     _SecurityMetric(
       title: 'Failed Logins',
-      value: '12',
-      caption: 'Last 24 hrs',
+      value: '7',
+      caption: 'Last 24 hours',
       icon: Icons.lock_outline,
       color: Color(0xFFE35D5D),
     ),
     _SecurityMetric(
       title: 'Active Sessions',
-      value: '8',
-      caption: 'Current',
+      value: '11',
+      caption: 'Across 6 admins',
       icon: Icons.devices_outlined,
       color: Color(0xFF2F80B7),
     ),
     _SecurityMetric(
       title: 'Admin Users',
-      value: '5',
-      caption: 'Enabled',
+      value: '6',
+      caption: '5 enabled',
       icon: Icons.admin_panel_settings_outlined,
       color: Color(0xFF2EAD67),
     ),
     _SecurityMetric(
       title: 'Suspicious',
-      value: '1',
-      caption: 'Needs review',
+      value: '2',
+      caption: 'Flagged this week',
       icon: Icons.warning_amber_rounded,
       color: Color(0xFFE5A534),
     ),
@@ -8799,25 +8816,32 @@ class SecurityPage extends StatelessWidget {
 
   static const _events = [
     _SecurityEvent(
-      time: '09:40 AM',
-      source: 'Admin01',
-      device: 'Chrome / Windows',
-      ip: '10.24.xxx.xxx',
+      time: '10:18 AM',
+      source: 'Maya Chen',
+      device: 'Edge / Windows',
+      ip: '192.0.2.41',
       status: 'Success',
     ),
     _SecurityEvent(
-      time: '09:22 AM',
-      source: 'Admin02',
-      device: 'Chrome / macOS',
-      ip: '10.25.xxx.xxx',
+      time: '09:56 AM',
+      source: 'Noah Patel',
+      device: 'Safari / macOS',
+      ip: '192.0.2.86',
       status: 'Success',
     ),
     _SecurityEvent(
-      time: '08:51 AM',
-      source: 'Unknown',
-      device: 'Chrome / Windows',
-      ip: '185.xxx.xxx.xxx',
+      time: '09:14 AM',
+      source: 'Unknown device',
+      device: 'Firefox / Linux',
+      ip: '198.51.100.27',
       status: 'Failed',
+    ),
+    _SecurityEvent(
+      time: '08:47 AM',
+      source: 'Aarav Singh',
+      device: 'Chrome / Android',
+      ip: '192.0.2.119',
+      status: 'Success',
     ),
   ];
 
@@ -8825,7 +8849,7 @@ class SecurityPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: _adminPagePadding,
+        padding: const EdgeInsets.fromLTRB(26, 22, 26, 26),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -8836,7 +8860,7 @@ class SecurityPage extends StatelessWidget {
               action: profile,
             ),
             _buildMetrics(),
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
             _buildEventsTable(),
           ],
         ),
@@ -8852,7 +8876,7 @@ class SecurityPage extends StatelessWidget {
             : constraints.maxWidth >= 560
             ? 2
             : 1;
-        const spacing = 12.0;
+        const spacing = 10.0;
         final cardWidth =
             (constraints.maxWidth - spacing * (columns - 1)) / columns;
 
@@ -8939,52 +8963,54 @@ class _SecurityMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 144,
-      padding: const EdgeInsets.all(16),
-      decoration: cardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(metric.icon, color: metric.color, size: 19),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  metric.title.toUpperCase(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: CommitmentAdminApp.textGrey,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.3,
+    return Tilt3D(
+      child: Container(
+        height: 120,
+        padding: const EdgeInsets.all(13),
+        decoration: cardDecoration(radius: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(metric.icon, color: metric.color, size: 17),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Text(
+                    metric.title.toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: CommitmentAdminApp.textGrey,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.3,
+                    ),
                   ),
                 ),
+              ],
+            ),
+            const Spacer(),
+            Text(
+              metric.value,
+              style: TextStyle(
+                color: metric.color,
+                fontSize: 26,
+                height: 1,
+                fontWeight: FontWeight.w800,
               ),
-            ],
-          ),
-          const Spacer(),
-          Text(
-            metric.value,
-            style: TextStyle(
-              color: metric.color,
-              fontSize: 30,
-              height: 1,
-              fontWeight: FontWeight.w800,
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            metric.caption,
-            style: const TextStyle(
-              color: CommitmentAdminApp.textGrey,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 6),
+            Text(
+              metric.caption,
+              style: const TextStyle(
+                color: CommitmentAdminApp.textGrey,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -9027,14 +9053,14 @@ class _SecurityEventRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final textStyle = TextStyle(
       color: header ? const Color(0xFF34404B) : CommitmentAdminApp.textDark,
-      fontSize: 12,
+      fontSize: 11,
       fontWeight: header ? FontWeight.w700 : FontWeight.w500,
     );
 
     Widget cell(String value, {int flex = 2}) => Expanded(
       flex: flex,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Text(
           value,
           maxLines: 1,
@@ -9046,7 +9072,7 @@ class _SecurityEventRow extends StatelessWidget {
 
     final successful = status == 'Success';
     return Container(
-      constraints: const BoxConstraints(minHeight: 50),
+      constraints: const BoxConstraints(minHeight: 42),
       decoration: BoxDecoration(
         color: header ? const Color(0xFFE3F3FF) : Colors.white,
         border: header
@@ -9062,15 +9088,15 @@ class _SecurityEventRow extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               child: header
                   ? Text(status, style: textStyle)
                   : Align(
                       alignment: Alignment.centerLeft,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
+                          horizontal: 8,
+                          vertical: 4,
                         ),
                         decoration: BoxDecoration(
                           color: successful
@@ -9109,20 +9135,23 @@ class AuditLogsPage extends StatefulWidget {
 }
 
 class _AuditLogsPageState extends State<AuditLogsPage> {
-  static const _admins = ['All Admins', 'Admin01', 'Admin02'];
+  static const _admins = ['All Admins', 'Maya Chen', 'Noah Patel', 'Priya Rao'];
   static const _modules = [
     'All Modules',
     'Users',
-    'Files',
-    'Billing',
+    'Access',
     'Configuration',
+    'Notifications',
+    'Billing',
   ];
   static const _actions = [
     'All Actions',
-    'Status changed',
-    'Viewed attachment',
-    'Cancelled plan',
-    'Updated config',
+    'Role assigned',
+    'Exported report',
+    'Login policy updated',
+    'Reminder template edited',
+    'Refund reviewed',
+    'Session revoked',
   ];
   static const _dateRanges = [
     'All dates',
@@ -9132,44 +9161,64 @@ class _AuditLogsPageState extends State<AuditLogsPage> {
   ];
   static const _entries = [
     _AuditLogEntry(
-      time: '09:42',
-      admin: 'Admin01',
-      action: 'Status changed',
+      time: '10:24',
+      admin: 'Maya Chen',
+      action: 'Role assigned',
+      module: 'Access',
+      record: 'USR-2846',
+      result: 'Viewer → Support',
+      searchableDetails: 'Access role assigned to support operator',
+      ageDays: 0,
+    ),
+    _AuditLogEntry(
+      time: '10:02',
+      admin: 'Noah Patel',
+      action: 'Exported report',
       module: 'Users',
-      record: '#10291',
-      result: 'Active → Suspended',
-      searchableDetails: 'User status changed from active to suspended',
+      record: 'RPT-071',
+      result: 'CSV generated',
+      searchableDetails: 'User activity report exported as CSV',
       ageDays: 0,
     ),
     _AuditLogEntry(
-      time: '09:31',
-      admin: 'Admin02',
-      action: 'Viewed attachment',
-      module: 'Files',
-      record: '#882',
-      result: 'Access logged',
-      searchableDetails: 'Attachment viewed and access logged',
-      ageDays: 0,
-    ),
-    _AuditLogEntry(
-      time: '09:12',
-      admin: 'Admin01',
-      action: 'Cancelled plan',
-      module: 'Billing',
-      record: '#992',
-      result: 'Cancelled',
-      searchableDetails: 'Subscription plan cancelled',
-      ageDays: 1,
-    ),
-    _AuditLogEntry(
-      time: '08:54',
-      admin: 'Admin01',
-      action: 'Updated config',
+      time: 'Yesterday',
+      admin: 'Priya Rao',
+      action: 'Login policy updated',
       module: 'Configuration',
-      record: 'Trial limit',
-      result: '10 → 12',
-      searchableDetails: 'Trial commitment limit updated from 10 to 12',
+      record: 'SEC-014',
+      result: 'MFA required',
+      searchableDetails: 'Multi-factor authentication requirement enabled',
       ageDays: 1,
+    ),
+    _AuditLogEntry(
+      time: 'Yesterday',
+      admin: 'Maya Chen',
+      action: 'Reminder template edited',
+      module: 'Notifications',
+      record: 'TPL-032',
+      result: 'Saved',
+      searchableDetails: 'Commitment reminder template content updated',
+      ageDays: 1,
+    ),
+    _AuditLogEntry(
+      time: 'Oct 06',
+      admin: 'Noah Patel',
+      action: 'Refund reviewed',
+      module: 'Billing',
+      record: 'PAY-3902',
+      result: 'Approved',
+      searchableDetails: 'Subscription refund reviewed and approved',
+      ageDays: 3,
+    ),
+    _AuditLogEntry(
+      time: 'Oct 03',
+      admin: 'Priya Rao',
+      action: 'Session revoked',
+      module: 'Access',
+      record: 'SES-118',
+      result: 'Signed out',
+      searchableDetails: 'Inactive admin session revoked',
+      ageDays: 6,
     ),
   ];
 
@@ -9485,29 +9534,36 @@ class AdminManagementPage extends StatefulWidget {
 }
 
 class _AdminManagementPageState extends State<AdminManagementPage> {
-  static const _storageKey = 'adminManagement.records';
-  static const _roles = ['Super Admin', 'Support', 'Finance'];
+  static const _storageKey = 'adminManagement.records.v2';
+  static const _roles = ['Owner', 'Operations', 'Billing', 'Support'];
   static const _demoAdmins = [
     _ManagedAdmin(
       id: 'demo-1',
-      name: 'Admin 1',
-      email: 'admin1@example.com',
-      role: 'Super Admin',
-      lastLogin: 'Today',
+      name: 'Maya Chen',
+      email: 'maya.chen@commitment.test',
+      role: 'Owner',
+      lastLogin: 'Today, 10:18 AM',
     ),
     _ManagedAdmin(
       id: 'demo-2',
-      name: 'Admin 2',
-      email: 'admin2@example.com',
-      role: 'Support',
-      lastLogin: 'Today',
+      name: 'Noah Patel',
+      email: 'noah.patel@commitment.test',
+      role: 'Operations',
+      lastLogin: 'Today, 9:56 AM',
     ),
     _ManagedAdmin(
       id: 'demo-3',
-      name: 'Admin 3',
-      email: 'admin3@example.com',
-      role: 'Finance',
-      lastLogin: 'Yesterday',
+      name: 'Priya Rao',
+      email: 'priya.rao@commitment.test',
+      role: 'Billing',
+      lastLogin: 'Yesterday, 4:42 PM',
+    ),
+    _ManagedAdmin(
+      id: 'demo-4',
+      name: 'Aarav Singh',
+      email: 'aarav.singh@commitment.test',
+      role: 'Support',
+      lastLogin: 'Oct 06, 2:15 PM',
     ),
   ];
 
@@ -9775,9 +9831,9 @@ class _AdminManagementPageState extends State<AdminManagementPage> {
 
   Widget _buildPermissionsTable() {
     const permissions = [
-      _RolePermission('Users', true, false, true, false),
-      _RolePermission('Billing', true, false, true, false),
-      _RolePermission('Configuration', true, false, true, true),
+      _RolePermission('People', true, true, true, false),
+      _RolePermission('Reports', true, true, false, false),
+      _RolePermission('Security', true, false, true, true),
     ];
 
     return Container(
